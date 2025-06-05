@@ -51,6 +51,15 @@ const apiFormSchema = z.object({
   apiKey: z.string(),
 });
 
+const passwordFormSchema = z.object({
+  currentPassword: z.string().min(1, "Current password is required"),
+  newPassword: z.string().min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.newPassword === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+});
+
 export default function SettingsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -81,6 +90,15 @@ export default function SettingsPage() {
     resolver: zodResolver(apiFormSchema),
     defaultValues: {
       apiKey: "sk_test_3d_model_platform_api_key_123456789",
+    },
+  });
+
+  const passwordForm = useForm<z.infer<typeof passwordFormSchema>>({
+    resolver: zodResolver(passwordFormSchema),
+    defaultValues: {
+      currentPassword: "",
+      newPassword: "",
+      confirmPassword: "",
     },
   });
 
@@ -123,6 +141,21 @@ export default function SettingsPage() {
       description: "Your API key has been regenerated.",
     });
     
+    setIsSubmitting(false);
+  }
+
+  async function onPasswordSubmit(values: z.infer<typeof passwordFormSchema>) {
+    setIsSubmitting(true);
+    
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    toast({
+      title: "Password updated",
+      description: "Your password has been updated successfully.",
+    });
+    
+    passwordForm.reset();
     setIsSubmitting(false);
   }
 
@@ -251,23 +284,57 @@ export default function SettingsPage() {
                 Change your password.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <FormLabel>Current Password</FormLabel>
-                <Input type="password" />
-              </div>
-              <div className="space-y-2">
-                <FormLabel>New Password</FormLabel>
-                <Input type="password" />
-              </div>
-              <div className="space-y-2">
-                <FormLabel>Confirm New Password</FormLabel>
-                <Input type="password" />
-              </div>
+            <CardContent>
+              <Form {...passwordForm}>
+                <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-4">
+                  <FormField
+                    control={passwordForm.control}
+                    name="currentPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Current Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={passwordForm.control}
+                    name="newPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>New Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={passwordForm.control}
+                    name="confirmPassword"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confirm New Password</FormLabel>
+                        <FormControl>
+                          <Input type="password" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" variant="outline" disabled={isSubmitting}>
+                    {isSubmitting && (
+                      <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    )}
+                    Update Password
+                  </Button>
+                </form>
+              </Form>
             </CardContent>
-            <CardFooter>
-              <Button variant="outline">Update Password</Button>
-            </CardFooter>
           </Card>
         </TabsContent>
         
