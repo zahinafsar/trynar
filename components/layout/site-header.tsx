@@ -21,7 +21,7 @@ export function SiteHeader() {
         <div className="flex-1 overflow-y-auto">
           <MainNav />
         </div>
-        <div className="border-t border-secondary p-6">
+        <div className="border-t border-secondary p-2">
           <UserNav />
         </div>
       </div>
