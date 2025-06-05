@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, Settings, LogOut } from "lucide-react";
+import { User, Settings, LogOut, CreditCard, Mail } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -11,10 +11,11 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 
 export function UserNav() {
@@ -32,13 +33,16 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-full justify-start gap-3 px-2">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback>JD</AvatarFallback>
+        <Button variant="ghost" className="relative h-auto w-full justify-start gap-3 px-2 py-3 hover:bg-primary/5">
+          <Avatar className="h-10 w-10 border-2 border-primary/20">
+            <AvatarImage src="/avatar.jpg" />
+            <AvatarFallback className="bg-primary/10 text-primary">JD</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-start">
-            <span className="text-sm font-medium">John Doe</span>
-            <span className="text-xs text-muted-foreground">john.doe@example.com</span>
+          <div className="flex flex-col items-start text-left">
+            <span className="text-sm font-semibold">John Doe</span>
+            <span className="text-xs text-muted-foreground truncate max-w-[140px]">
+              john.doe@example.com
+            </span>
           </div>
         </Button>
       </DropdownMenuTrigger>
@@ -56,18 +60,26 @@ export function UserNav() {
           <DropdownMenuItem>
             <User className="mr-2 h-4 w-4" />
             <span>Profile</span>
+            <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
+          </DropdownMenuItem>
+          <DropdownMenuItem>
+            <CreditCard className="mr-2 h-4 w-4" />
+            <span>Billing</span>
+            <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/settings">
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
+              <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleLogout}>
           <LogOut className="mr-2 h-4 w-4" />
           <span>Log out</span>
+          <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
