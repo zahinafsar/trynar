@@ -64,7 +64,7 @@ export function MainNav() {
           </Link>
         ))}
       </nav>
-      <ThemeToggle />
+      {/* <ThemeToggle /> */}
     </div>
   );
 }
