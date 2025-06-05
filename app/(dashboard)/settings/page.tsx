@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, FormProvider } from "react-hook-form";
 import * as z from "zod";
 import { Save } from "lucide-react";
 
@@ -152,7 +152,7 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Form {...profileForm}>
+              <FormProvider {...profileForm}>
                 <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
                   <FormField
                     control={profileForm.control}
@@ -240,7 +240,7 @@ export default function SettingsPage() {
                     <Save className="ml-2 h-4 w-4" />
                   </Button>
                 </form>
-              </Form>
+              </FormProvider>
             </CardContent>
           </Card>
           
@@ -280,7 +280,7 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Form {...notificationsForm}>
+              <FormProvider {...notificationsForm}>
                 <form onSubmit={notificationsForm.handleSubmit(onNotificationsSubmit)} className="space-y-4">
                   <div>
                     <h3 className="mb-4 text-lg font-medium">3D Model Notifications</h3>
@@ -421,7 +421,7 @@ export default function SettingsPage() {
                     Save Preferences
                   </Button>
                 </form>
-              </Form>
+              </FormProvider>
             </CardContent>
           </Card>
         </TabsContent>
@@ -487,7 +487,7 @@ export default function SettingsPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Form {...apiForm}>
+              <FormProvider {...apiForm}>
                 <form onSubmit={apiForm.handleSubmit(onApiSubmit)} className="space-y-4">
                   <FormField
                     control={apiForm.control}
@@ -532,7 +532,7 @@ export default function SettingsPage() {
                     Regenerate API Key
                   </Button>
                 </form>
-              </Form>
+              </FormProvider>
             </CardContent>
           </Card>
         </TabsContent>
