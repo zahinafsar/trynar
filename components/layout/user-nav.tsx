@@ -33,7 +33,7 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-auto w-full justify-start gap-3 px-2 py-3 hover:bg-primary/5">
+        <Button variant="ghost" className="relative h-auto w-full justify-start gap-3 hover:bg-primary/5">
           <Avatar className="h-10 w-10 border-2 border-primary/20">
             <AvatarImage src="/avatar.jpg" />
             <AvatarFallback className="bg-primary/10 text-primary">JD</AvatarFallback>
