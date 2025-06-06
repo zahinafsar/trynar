@@ -91,19 +91,9 @@ export function VirtualTryOn() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return null;
 
-    // Draw video frame to canvas
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
     // Get image data for processing
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
-    
-    // Convert to grayscale and detect edges
-    const grayscale = new Uint8Array(canvas.width * canvas.height);
-    for (let i = 0; i < data.length; i += 4) {
-      const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
-      grayscale[i / 4] = gray;
-    }
     
     // Simple face detection using multiple methods
     let faceRegions: Array<{x: number, y: number, width: number, height: number, confidence: number}> = [];
@@ -330,17 +320,28 @@ export function VirtualTryOn() {
     canvas.width = video.videoWidth || 640;
     canvas.height = video.videoHeight || 480;
     
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     // Flip the canvas horizontally for mirror effect
     ctx.save();
     ctx.scale(-1, 1);
     ctx.translate(-canvas.width, 0);
     
-    // Draw video frame
+    // Draw video frame first
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     
-    // Detect face
+    // Restore context for face detection processing
+    ctx.restore();
+    
+    // Detect face on the current frame
     const face = detectFace(canvas, video);
     setFaceDetection(face);
+    
+    // Apply mirror effect again for drawing overlays
+    ctx.save();
+    ctx.scale(-1, 1);
+    ctx.translate(-canvas.width, 0);
     
     // Draw virtual item if face is detected
     if (face && selectedItem) {
