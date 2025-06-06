@@ -6,8 +6,9 @@ import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useGLTF, Environment, Float, PresentationControls } from '@react-three/drei';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Camera } from 'lucide-react';
 import { Mesh } from 'three';
+import { VirtualTryOn } from '@/components/virtual-try-on/virtual-try-on';
 
 function CubeMesh() {
   const meshRef = useRef<Mesh>(null);
@@ -116,6 +117,38 @@ export default function Home() {
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </motion.div>
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Virtual Try-On Demo Section */}
+      <div className="py-16 px-4 bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center space-y-6 mb-12"
+          >
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Camera className="h-8 w-8 text-primary" />
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+                Virtual Try-On Experience
+              </h2>
+            </div>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+              Experience our cutting-edge virtual try-on technology. Test different products using your camera with real-time face detection and AR overlay.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            viewport={{ once: true }}
+          >
+            <VirtualTryOn />
           </motion.div>
         </div>
       </div>
