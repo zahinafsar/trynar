@@ -109,10 +109,10 @@ export function ProductList() {
   });
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border bg-card">
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="bg-muted/50">
             <TableHead className="w-[80px]">Image</TableHead>
             <TableHead>
               <Button
@@ -150,7 +150,7 @@ export function ProductList() {
         </TableHeader>
         <TableBody>
           {sortedProducts.map((product) => (
-            <TableRow key={product.id}>
+            <TableRow key={product.id} className="bg-card hover:bg-muted/50">
               <TableCell>
                 <div className="relative h-10 w-10 overflow-hidden rounded-md">
                   <Image

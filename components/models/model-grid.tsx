@@ -137,7 +137,7 @@ export function ModelGrid() {
       {view === "grid" ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {models.map((model) => (
-            <Card key={model.id} className="overflow-hidden">
+            <Card key={model.id} className="overflow-hidden bg-card">
               <CardHeader className="p-0">
                 <div className="relative aspect-square">
                   <Image
@@ -206,7 +206,7 @@ export function ModelGrid() {
       ) : (
         <div className="space-y-4">
           {models.map((model) => (
-            <Card key={model.id}>
+            <Card key={model.id} className="bg-card">
               <CardContent className="p-4">
                 <div className="flex items-center space-x-4">
                   <div className="relative h-16 w-16 overflow-hidden rounded-md">

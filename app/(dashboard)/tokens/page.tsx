@@ -96,7 +96,7 @@ export default function TokensPage() {
         </p>
       </div>
       
-      <div className="flex items-center space-x-4 rounded-lg border p-4">
+      <div className="flex items-center space-x-4 rounded-lg border p-4 bg-card">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
           <Coins className="h-6 w-6 text-primary" />
         </div>
@@ -109,7 +109,7 @@ export default function TokensPage() {
       </div>
       
       <div className="grid gap-6 sm:grid-cols-1 lg:grid-cols-3">
-        <Card className="relative overflow-hidden">
+        <Card className="relative overflow-hidden bg-card">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent" />
           <CardHeader>
             <CardTitle>Basic</CardTitle>
@@ -140,7 +140,7 @@ export default function TokensPage() {
           </CardFooter>
         </Card>
         
-        <Card className="relative overflow-hidden border-primary">
+        <Card className="relative overflow-hidden border-primary bg-card">
           <div className="absolute right-4 top-4">
             <div className="rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground">
               Popular
@@ -180,7 +180,7 @@ export default function TokensPage() {
           </CardFooter>
         </Card>
         
-        <Card className="relative overflow-hidden">
+        <Card className="relative overflow-hidden bg-card">
           <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent" />
           <CardHeader>
             <CardTitle>Business</CardTitle>
