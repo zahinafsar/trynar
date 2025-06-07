@@ -6,9 +6,21 @@ import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, Float, PresentationControls } from '@react-three/drei';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Camera } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Group } from 'three';
-import { VirtualTryOn } from '@/components/virtual-try-on';
+import dynamic from 'next/dynamic';
+
+const VirtualTryOn = dynamic(() => import('@/components/virtual-try-on').then(mod => mod.VirtualTryOn), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] flex items-center justify-center bg-muted/30">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-lg font-medium">Loading virtual try-on...</p>
+      </div>
+    </div>
+  ),
+});
 
 function Object3D() {
   const groupRef = useRef<Group | null>(null);
