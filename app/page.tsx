@@ -1,34 +1,110 @@
 "use client";
 
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useGLTF, Environment, Float, PresentationControls } from '@react-three/drei';
+import { Environment, Float, PresentationControls } from '@react-three/drei';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Camera } from 'lucide-react';
-import { Mesh } from 'three';
-import { VirtualTryOn } from '@/components/virtual-try-on/virtual-try-on';
+import { Group } from 'three';
+import { VirtualTryOn } from '@/components/virtual-try-on';
 
-function CubeMesh() {
-  const meshRef = useRef<Mesh>(null);
-  
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x += delta * 0.2;
-      meshRef.current.rotation.y += delta * 0.2;
+function Object3D() {
+  const groupRef = useRef<Group | null>(null);
+  const knotRef = useRef<Group | null>(null);
+
+  useFrame((state) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.6) * 0.3;
+      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.3;
+    }
+    if (knotRef.current) {
+      // Simpler, more subtle movement
+      knotRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.3;
     }
   });
 
+  // Bar dimensions
+  const barLength = 2.4;
+  const barThickness = 0.3;
+  // Three distinct purple shades for contrast
+  const colorX = "#9333EA"; // Rich purple
+  const colorY = "#A855F7"; // Medium purple
+  const colorZ = "#C084FC"; // Light purple
+
   return (
-    <mesh ref={meshRef}>
-      <boxGeometry args={[2, 2, 2]} />
-      <meshStandardMaterial
-        metalness={0.8}
-        roughness={0.2}
-        color="#ffffff"
-      />
-    </mesh>
+    <group ref={groupRef}>
+      {/* Simplified torus knot */}
+      <group ref={knotRef} position={[0, 0, 0]}>
+        <mesh>
+          <torusKnotGeometry args={[0.4, 0.15, 64, 16, 2, 3]} />
+          <meshPhysicalMaterial
+            color="#A855F7"
+            emissive="#9333EA"
+            emissiveIntensity={0.3}
+            metalness={0.6}
+            roughness={0.3}
+            clearcoat={0.5}
+            clearcoatRoughness={0.3}
+            iridescence={0.8}
+            iridescenceIOR={1.5}
+            iridescenceThicknessRange={[100, 400]}
+          />
+        </mesh>
+      </group>
+      {/* Y axis (vertical bars) */}
+      <mesh position={[-1, 0, 1]}>
+        <boxGeometry args={[barThickness, barLength, barThickness]} />
+        <meshStandardMaterial color={colorY} />
+      </mesh>
+      <mesh position={[1, 0, 1]}>
+        <boxGeometry args={[barThickness, barLength, barThickness]} />
+        <meshStandardMaterial color={colorY} />
+      </mesh>
+      <mesh position={[-1, 0, -1]}>
+        <boxGeometry args={[barThickness, barLength, barThickness]} />
+        <meshStandardMaterial color={colorY} />
+      </mesh>
+      <mesh position={[1, 0, -1]}>
+        <boxGeometry args={[barThickness, barLength, barThickness]} />
+        <meshStandardMaterial color={colorY} />
+      </mesh>
+      {/* X axis (horizontal bars) */}
+      <mesh position={[0, 1, 1]}>
+        <boxGeometry args={[barLength, barThickness, barThickness]} />
+        <meshStandardMaterial color={colorX} />
+      </mesh>
+      <mesh position={[0, -1, 1]}>
+        <boxGeometry args={[barLength, barThickness, barThickness]} />
+        <meshStandardMaterial color={colorX} />
+      </mesh>
+      <mesh position={[0, 1, -1]}>
+        <boxGeometry args={[barLength, barThickness, barThickness]} />
+        <meshStandardMaterial color={colorX} />
+      </mesh>
+      <mesh position={[0, -1, -1]}>
+        <boxGeometry args={[barLength, barThickness, barThickness]} />
+        <meshStandardMaterial color={colorX} />
+      </mesh>
+      {/* Z axis (horizontal bars) */}
+      <mesh position={[1, 1, 0]}>
+        <boxGeometry args={[barThickness, barThickness, barLength]} />
+        <meshStandardMaterial color={colorZ} />
+      </mesh>
+      <mesh position={[-1, 1, 0]}>
+        <boxGeometry args={[barThickness, barThickness, barLength]} />
+        <meshStandardMaterial color={colorZ} />
+      </mesh>
+      <mesh position={[1, -1, 0]}>
+        <boxGeometry args={[barThickness, barThickness, barLength]} />
+        <meshStandardMaterial color={colorZ} />
+      </mesh>
+      <mesh position={[-1, -1, 0]}>
+        <boxGeometry args={[barThickness, barThickness, barLength]} />
+        <meshStandardMaterial color={colorZ} />
+      </mesh>
+    </group>
   );
 }
 
@@ -37,14 +113,16 @@ export default function Home() {
     <div className="flex min-h-screen flex-col">
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-b from-background to-background/80">
         {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-grid-white/10 bg-[size:100px_100px] [mask-image:radial-gradient(white,transparent_70%)]" />
-          <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-gradient-radial from-primary/20 to-transparent opacity-50 animate-spin-slow" style={{ animationDuration: '20s' }} />
+        <div className="absolute inset-0 overflow-hidden opacity-50">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-800 via-violet-900 to-slate-900 opacity-70" />
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 [background:radial-gradient(white,_transparent_1px)_0_0_/_8px_8px] opacity-20" />
+          </div>
         </div>
 
         <div className="w-full max-w-5xl text-center space-y-12 relative z-10">
           {/* 3D Canvas */}
-          <div className="h-[300px] w-full">
+          <div className="h-[280px] w-full">
             <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
               <ambientLight intensity={0.5} />
               <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
@@ -57,7 +135,7 @@ export default function Home() {
                 snap={{ mass: 4, tension: 400 }}
               >
                 <Float rotationIntensity={0.5}>
-                  <CubeMesh />
+                  <Object3D />
                 </Float>
               </PresentationControls>
               <Environment preset="city" />
@@ -69,12 +147,12 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-6"
+            className="space-y-6 !mt-0"
           >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
-              3D Model Platform
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">
+              AI powered AR
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl max-w-2xl mx-auto">
               Generate 3D models for your products and enable AR try-on for your customers.
             </p>
             <motion.div
