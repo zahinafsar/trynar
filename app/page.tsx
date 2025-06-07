@@ -10,134 +10,25 @@ import { ArrowRight, Camera } from 'lucide-react';
 import { Mesh } from 'three';
 import { VirtualTryOn } from '@/components/virtual-try-on/virtual-try-on';
 
-function IsometricCube() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = 400;
-    canvas.height = 400;
-
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Define cube parameters
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const size = 120;
-
-    // Define the 3D cube vertices in isometric projection
-    const vertices = {
-      // Front face vertices
-      frontTopLeft: { x: centerX - size, y: centerY - size * 0.5 },
-      frontTopRight: { x: centerX, y: centerY - size },
-      frontBottomLeft: { x: centerX - size, y: centerY + size * 0.5 },
-      frontBottomRight: { x: centerX, y: centerY },
-      
-      // Back face vertices (offset for 3D effect)
-      backTopLeft: { x: centerX - size * 0.5, y: centerY - size * 0.75 },
-      backTopRight: { x: centerX + size * 0.5, y: centerY - size * 1.25 },
-      backBottomLeft: { x: centerX - size * 0.5, y: centerY + size * 0.25 },
-      backBottomRight: { x: centerX + size * 0.5, y: centerY - size * 0.25 },
-    };
-
-    // Create gradients for each face
-    const leftFaceGradient = ctx.createLinearGradient(
-      vertices.frontTopLeft.x, vertices.frontTopLeft.y,
-      vertices.backTopLeft.x, vertices.backTopLeft.y
-    );
-    leftFaceGradient.addColorStop(0, '#9f7aea'); // Light purple
-    leftFaceGradient.addColorStop(1, '#6b46c1'); // Medium purple
-
-    const rightFaceGradient = ctx.createLinearGradient(
-      vertices.frontTopRight.x, vertices.frontTopRight.y,
-      vertices.backTopRight.x, vertices.backTopRight.y
-    );
-    rightFaceGradient.addColorStop(0, '#7c3aed'); // Medium purple
-    rightFaceGradient.addColorStop(1, '#5b21b6'); // Dark purple
-
-    const topFaceGradient = ctx.createLinearGradient(
-      vertices.frontTopLeft.x, vertices.frontTopLeft.y,
-      vertices.frontTopRight.x, vertices.frontTopRight.y
-    );
-    topFaceGradient.addColorStop(0, '#a78bfa'); // Light purple
-    topFaceGradient.addColorStop(1, '#8b5cf6'); // Medium light purple
-
-    // Draw left face
-    ctx.beginPath();
-    ctx.moveTo(vertices.frontTopLeft.x, vertices.frontTopLeft.y);
-    ctx.lineTo(vertices.backTopLeft.x, vertices.backTopLeft.y);
-    ctx.lineTo(vertices.backBottomLeft.x, vertices.backBottomLeft.y);
-    ctx.lineTo(vertices.frontBottomLeft.x, vertices.frontBottomLeft.y);
-    ctx.closePath();
-    ctx.fillStyle = leftFaceGradient;
-    ctx.fill();
-    ctx.strokeStyle = '#4c1d95';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Draw right face
-    ctx.beginPath();
-    ctx.moveTo(vertices.frontTopRight.x, vertices.frontTopRight.y);
-    ctx.lineTo(vertices.backTopRight.x, vertices.backTopRight.y);
-    ctx.lineTo(vertices.backBottomRight.x, vertices.backBottomRight.y);
-    ctx.lineTo(vertices.frontBottomRight.x, vertices.frontBottomRight.y);
-    ctx.closePath();
-    ctx.fillStyle = rightFaceGradient;
-    ctx.fill();
-    ctx.strokeStyle = '#4c1d95';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Draw top face
-    ctx.beginPath();
-    ctx.moveTo(vertices.frontTopLeft.x, vertices.frontTopLeft.y);
-    ctx.lineTo(vertices.frontTopRight.x, vertices.frontTopRight.y);
-    ctx.lineTo(vertices.backTopRight.x, vertices.backTopRight.y);
-    ctx.lineTo(vertices.backTopLeft.x, vertices.backTopLeft.y);
-    ctx.closePath();
-    ctx.fillStyle = topFaceGradient;
-    ctx.fill();
-    ctx.strokeStyle = '#4c1d95';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // Add subtle inner shadows for depth
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
-    ctx.shadowBlur = 10;
-    ctx.shadowOffsetX = 5;
-    ctx.shadowOffsetY = 5;
-
-    // Add highlight edges for more 3D effect
-    ctx.shadowColor = 'transparent';
-    ctx.strokeStyle = '#c4b5fd';
-    ctx.lineWidth = 1;
-    
-    // Top edges highlight
-    ctx.beginPath();
-    ctx.moveTo(vertices.frontTopLeft.x, vertices.frontTopLeft.y);
-    ctx.lineTo(vertices.backTopLeft.x, vertices.backTopLeft.y);
-    ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.moveTo(vertices.frontTopLeft.x, vertices.frontTopLeft.y);
-    ctx.lineTo(vertices.frontTopRight.x, vertices.frontTopRight.y);
-    ctx.stroke();
-
-  }, []);
+function CubeMesh() {
+  const meshRef = useRef<Mesh>(null);
+  
+  useFrame((state, delta) => {
+    if (meshRef.current) {
+      meshRef.current.rotation.x += delta * 0.2;
+      meshRef.current.rotation.y += delta * 0.2;
+    }
+  });
 
   return (
-    <canvas 
-      ref={canvasRef}
-      className="w-full h-full object-contain"
-      style={{ maxWidth: '400px', maxHeight: '400px' }}
-    />
+    <mesh ref={meshRef}>
+      <boxGeometry args={[2, 2, 2]} />
+      <meshStandardMaterial
+        metalness={0.8}
+        roughness={0.2}
+        color="#ffffff"
+      />
+    </mesh>
   );
 }
 
@@ -152,9 +43,25 @@ export default function Home() {
         </div>
 
         <div className="w-full max-w-5xl text-center space-y-12 relative z-10">
-          {/* 3D Isometric Cube */}
-          <div className="h-[300px] w-full flex items-center justify-center">
-            <IsometricCube />
+          {/* 3D Canvas */}
+          <div className="h-[300px] w-full">
+            <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+              <ambientLight intensity={0.5} />
+              <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
+              <PresentationControls
+                global
+                rotation={[0.13, 0.1, 0]}
+                polar={[-0.4, 0.2]}
+                azimuth={[-1, 0.75]}
+                config={{ mass: 2, tension: 400 }}
+                snap={{ mass: 4, tension: 400 }}
+              >
+                <Float rotationIntensity={0.5}>
+                  <CubeMesh />
+                </Float>
+              </PresentationControls>
+              <Environment preset="city" />
+            </Canvas>
           </div>
 
           {/* Content */}
