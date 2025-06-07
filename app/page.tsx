@@ -202,7 +202,7 @@ export default function Home() {
       {/* Virtual Try-On Demo Section */}
       <div className="py-16 px-4 bg-muted/30">
         <div className="max-w-7xl mx-auto">
-          <motion.div
+          {/* <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -218,7 +218,7 @@ export default function Home() {
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               Experience our cutting-edge virtual try-on technology. Test different products using your camera with real-time face detection and AR overlay.
             </p>
-          </motion.div>
+          </motion.div> */}
 
           <motion.div
             initial={{ opacity: 0, y: 40 }}

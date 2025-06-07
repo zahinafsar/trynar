@@ -1,11 +1,9 @@
-import { TRIANGULATION } from "./triangulation";
-
 // Single landmark indices for each feature
 const LEFT_EYE_INDEX = 159;  // Center of left eye (more accurate)
 const RIGHT_EYE_INDEX = 386; // Center of right eye (more accurate)
-const NOSE_INDEX = 4;       // Bridge of nose (more stable)
-const LEFT_EAR_INDEX = 234; // Top of left ear
-const RIGHT_EAR_INDEX = 454; // Top of right ear
+// const NOSE_INDEX = 4;       // Bridge of nose (more stable)
+// const LEFT_EAR_INDEX = 234; // Top of left ear
+// const RIGHT_EAR_INDEX = 454; // Top of right ear
 
 // Load sunglasses image
 const sunglasses = new Image();
@@ -13,7 +11,7 @@ sunglasses.src = '/sunglass.png';
 sunglasses.width = 800/3;  // Configure base width for scaling
 sunglasses.height = 300/3; // Configure base height for scaling
 
-export const drawMesh = (prediction: any, ctx: any) => {
+export const Object3D = (prediction: any, ctx: any) => {
   if (!prediction) return;
   const keyPoints = prediction.keypoints;
   if (!keyPoints) return;
@@ -66,47 +64,35 @@ export const drawMesh = (prediction: any, ctx: any) => {
   }
 
   // Draw single dot for left eye
-  ctx.beginPath();
-  ctx.arc(leftEye.x, leftEye.y, 3, 0, 3 * Math.PI);
-  ctx.fillStyle = "#00FFFF"; // Cyan for eyes
-  ctx.fill();
+  // ctx.beginPath();
+  // ctx.arc(leftEye.x, leftEye.y, 3, 0, 3 * Math.PI);
+  // ctx.fillStyle = "#00FFFF"; // Cyan for eyes
+  // ctx.fill();
 
-  // Draw single dot for right eye
-  ctx.beginPath();
-  ctx.arc(rightEye.x, rightEye.y, 3, 0, 3 * Math.PI);
-  ctx.fillStyle = "#00FFFF"; // Cyan for eyes
-  ctx.fill();
+  // // Draw single dot for right eye
+  // ctx.beginPath();
+  // ctx.arc(rightEye.x, rightEye.y, 3, 0, 3 * Math.PI);
+  // ctx.fillStyle = "#00FFFF"; // Cyan for eyes
+  // ctx.fill();
 
-  // Draw single dot for nose
-  const nose = keyPoints[NOSE_INDEX];
-  ctx.beginPath();
-  ctx.arc(nose.x, nose.y, 3, 0, 3 * Math.PI);
-  ctx.fillStyle = "#FF69B4"; // Pink for nose
-  ctx.fill();
+  // // Draw single dot for nose
+  // const nose = keyPoints[NOSE_INDEX];
+  // ctx.beginPath();
+  // ctx.arc(nose.x, nose.y, 3, 0, 3 * Math.PI);
+  // ctx.fillStyle = "#FF69B4"; // Pink for nose
+  // ctx.fill();
 
-  // Draw single dot for left ear
-  const leftEar = keyPoints[LEFT_EAR_INDEX];
-  ctx.beginPath();
-  ctx.arc(leftEar.x, leftEar.y, 3, 0, 3 * Math.PI);
-  ctx.fillStyle = "#98FB98"; // Light green for ears
-  ctx.fill();
+  // // Draw single dot for left ear
+  // const leftEar = keyPoints[LEFT_EAR_INDEX];
+  // ctx.beginPath();
+  // ctx.arc(leftEar.x, leftEar.y, 3, 0, 3 * Math.PI);
+  // ctx.fillStyle = "#98FB98"; // Light green for ears
+  // ctx.fill();
 
-  // Draw single dot for right ear
-  const rightEar = keyPoints[RIGHT_EAR_INDEX];
-  ctx.beginPath();
-  ctx.arc(rightEar.x, rightEar.y, 3, 0, 3 * Math.PI);
-  ctx.fillStyle = "#98FB98"; // Light green for ears
-  ctx.fill();
-};
-
-const drawPath = (ctx: any, points: any, closePath: any) => {
-  const region = new Path2D();
-  region.moveTo(points[0].x, points[0].y);
-  for (let i = 1; i < points.length; i++) {
-    const point = points[i];
-    region.lineTo(point.x, point.y);
-  }
-  if (closePath) region.closePath();
-  ctx.stokeStyle = "black";
-  ctx.stroke(region);
+  // // Draw single dot for right ear
+  // const rightEar = keyPoints[RIGHT_EAR_INDEX];
+  // ctx.beginPath();
+  // ctx.arc(rightEar.x, rightEar.y, 3, 0, 3 * Math.PI);
+  // ctx.fillStyle = "#98FB98"; // Light green for ears
+  // ctx.fill();
 };
