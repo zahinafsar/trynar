@@ -8,7 +8,7 @@ interface AuthState {
   loading: boolean;
 }
 
-export default function useSession(): AuthState {
+export function useAuth(): AuthState {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
@@ -43,8 +43,4 @@ export default function useSession(): AuthState {
   }, []);
 
   return { user, session, loading };
-}
-
-export function useAuth() {
-  return useSession();
 }

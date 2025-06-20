@@ -1,25 +1,29 @@
 "use client";
 
-import { useRef } from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { Environment, Float, PresentationControls } from '@react-three/drei';
-import { Button } from '@/components/ui/button';
-import { Group } from 'three';
-import dynamic from 'next/dynamic';
+import { useRef } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Environment, Float, PresentationControls } from "@react-three/drei";
+import { Button } from "@/components/ui/button";
+import { Group } from "three";
+import dynamic from "next/dynamic";
+import { useAuth } from "@/hooks/auth";
 
-const VirtualTryOn = dynamic(() => import('@/components/virtual-try-on').then(mod => mod.VirtualTryOn), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-[400px] flex items-center justify-center bg-muted/30">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-        <p className="text-lg font-medium">Loading virtual try-on...</p>
+const VirtualTryOn = dynamic(
+  () => import("@/components/virtual-try-on").then((mod) => mod.VirtualTryOn),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[400px] flex items-center justify-center bg-muted/30">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-lg font-medium">Loading virtual try-on...</p>
+        </div>
       </div>
-    </div>
-  ),
-});
+    ),
+  }
+);
 
 function Object3D() {
   const groupRef = useRef<Group | null>(null);
@@ -27,12 +31,15 @@ function Object3D() {
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.6) * 0.3;
-      groupRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.3;
+      groupRef.current.rotation.x =
+        Math.sin(state.clock.elapsedTime * 0.6) * 0.3;
+      groupRef.current.rotation.y =
+        Math.sin(state.clock.elapsedTime * 0.4) * 0.3;
     }
     if (knotRef.current) {
       // Simpler, more subtle movement
-      knotRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.2) * 0.3;
+      knotRef.current.rotation.y =
+        Math.sin(state.clock.elapsedTime * 0.2) * 0.3;
     }
   });
 
@@ -120,6 +127,7 @@ function Object3D() {
 }
 
 export default function Home() {
+  const { user } = useAuth();
   return (
     <div className="flex min-h-screen flex-col">
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-b from-background to-background/80">
@@ -164,48 +172,47 @@ export default function Home() {
               AI powered AR
             </h1>
             <p className="text-xl max-w-2xl mx-auto">
-              Generate 3D models for your products and enable AR try-on for your customers.
+              Generate 3D models for your products and enable AR try-on for your
+              customers.
             </p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary/90 hover:bg-primary backdrop-blur-sm"
+            {!user ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.8 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center"
               >
-                <Link href="/login">
-                  Login
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="bg-background/50 hover:bg-background/80 backdrop-blur-sm"
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-primary/90 hover:bg-primary backdrop-blur-sm"
+                >
+                  <Link href="/login">Login</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="bg-background/50 hover:bg-background/80 backdrop-blur-sm"
+                >
+                  <Link href="/register">Register</Link>
+                </Button>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4, duration: 0.8 }}
               >
-                <Link href="/register">
-                  Register
-                </Link>
-              </Button>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="pt-8"
-            >
-              {/* <Link
-                href="/dashboard"
-                className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                Go to Dashboard
-                <ArrowRight className="ml-1 h-4 w-4" />
-              </Link> */}
-            </motion.div>
+                <Button
+                  asChild
+                  size="lg"
+                  className="bg-primary/90 hover:bg-primary backdrop-blur-sm mb-8"
+                >
+                  <Link href="/dashboard">Go to Dashboard</Link>
+                </Button>
+              </motion.div>
+            )}
           </motion.div>
         </div>
       </div>

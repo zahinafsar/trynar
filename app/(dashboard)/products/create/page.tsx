@@ -32,7 +32,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  name: z.string().min(3, { message: "Product name must be at least 3 characters." }),
+  name: z.string().min(3, { message: "Model name must be at least 3 characters." }),
   category: z.string().min(1, { message: "Please select a category." }),
   instructions: z.string().optional(),
   image: z.any().optional(),
@@ -49,7 +49,7 @@ const categories = [
   { value: "other", label: "Other" },
 ];
 
-export default function CreateProductPage() {
+export default function CreateARModelPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationStatus, setGenerationStatus] = useState<"idle" | "processing" | "complete" | "error">("idle");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -103,7 +103,7 @@ export default function CreateProductPage() {
       toast({
         variant: "destructive",
         title: "Missing information",
-        description: "Please fill in the product name and category first.",
+        description: "Please fill in the model name and category first.",
       });
       return;
     }
@@ -119,37 +119,7 @@ export default function CreateProductPage() {
         reader.readAsDataURL(selectedImage);
       });
 
-      // Generate prompt based on form inputs
-      const categoryPrompts = {
-        sunglasses: "sunglasses with perfect lens reflection and frame details",
-        eyeglasses: "eyeglasses with clear lenses and precise frame geometry",
-        hats: "hat with proper shape and texture details",
-        jewelry: "jewelry piece with metallic shine and gemstone details",
-        watches: "watch with clear face and band details",
-        masks: "face mask with proper fit and material texture",
-        headphones: "headphones with sleek design and proper proportions",
-        other: "product with enhanced details and professional appearance"
-      };
-
-      const categorySpecific = categoryPrompts[formValues.category as keyof typeof categoryPrompts] || categoryPrompts.other;
-      
-      const generatedPrompt = `Create a perfect PNG image of ${formValues.name} (${categorySpecific}) optimized for AR try-on applications.
-
-Requirements:
-- Completely transparent background (no background at all)
-- Professional product photography quality
-- Perfect lighting with subtle shadows
-- High contrast and sharp details
-- Centered and properly oriented for virtual try-on
-- Clean edges with no artifacts
-- Optimal size and proportions
-- Premium catalog-quality appearance
-
-${formValues.instructions ? `Additional specifications: ${formValues.instructions}` : ''}
-
-The image should look like it was photographed in a professional studio with perfect lighting, ready to be overlaid on a person's face/head in an AR application.`;
-
-      // Call ChatGPT API to generate optimized image
+      // Call API to generate optimized image
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         headers: {
@@ -157,7 +127,6 @@ The image should look like it was photographed in a professional studio with per
         },
         body: JSON.stringify({
           imageData: base64Image,
-          prompt: generatedPrompt,
           productName: formValues.name,
           category: formValues.category,
           instructions: formValues.instructions,
@@ -173,10 +142,16 @@ The image should look like it was photographed in a professional studio with per
       if (result.success) {
         setGeneratedImage(result.imageUrl);
         setGenerationStatus("complete");
+        
+        // Save to database immediately after successful generation
+        await saveToDatabase(formValues, result.imageUrl);
+        
         toast({
-          title: "Image optimized successfully",
-          description: "Your product image has been optimized for AR try-on.",
+          title: "AR model created successfully",
+          description: "Your AR model has been generated and saved to the database.",
         });
+        
+        router.push("/models");
       } else {
         throw new Error(result.error || 'Failed to generate image');
       }
@@ -184,59 +159,60 @@ The image should look like it was photographed in a professional studio with per
       setGenerationStatus("error");
       toast({
         variant: "destructive",
-        title: "Generation failed",
-        description: "There was an error optimizing your image. Please try again.",
+        title: "Creation failed",
+        description: "There was an error creating your AR model. Please try again.",
       });
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const saveToDatabase = async (formValues: z.infer<typeof formSchema>, imageUrl: string) => {
+    // Here you would save the AR model to your database
+    // For now, we'll simulate the process
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // In a real implementation, you would:
+    // 1. Save the model details (name, category, instructions) to your database
+    // 2. Save the generated image URL or upload the image to your storage
+    // 3. Create the relationship between the model and the image
+    console.log('Saving to database:', {
+      name: formValues.name,
+      category: formValues.category,
+      instructions: formValues.instructions,
+      imageUrl: imageUrl
+    });
+  };
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!generatedImage) {
+    if (!selectedImage) {
       toast({
         variant: "destructive",
-        title: "Image optimization required",
-        description: "Please upload an image and generate the optimized version first.",
+        title: "Image required",
+        description: "Please upload an image first.",
       });
       return;
     }
 
-    try {
-      // Here you would save the product to your database
-      // For now, we'll simulate the process
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      toast({
-        title: "Product created successfully",
-        description: "Your product has been added to your catalog with optimized AR image.",
-      });
-      
-      router.push("/products");
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to create product. Please try again.",
-      });
-    }
+    // Start the generation and save process
+    await generateOptimizedImage();
   }
 
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Create Product</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Create AR Model</h2>
         <p className="text-muted-foreground">
-          Add a new product with AI-optimized images for AR try-on
+          Add a new AR model with AI-optimized images for virtual try-on
         </p>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        {/* Product Form */}
+        {/* AR Model Form */}
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Product Details</CardTitle>
+              <CardTitle>AR Model Details</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -246,7 +222,7 @@ The image should look like it was photographed in a professional studio with per
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product Name</FormLabel>
+                        <FormLabel>Model Name</FormLabel>
                         <FormControl>
                           <Input placeholder="Blue Aviator Sunglasses" {...field} />
                         </FormControl>
@@ -301,20 +277,12 @@ The image should look like it was photographed in a professional studio with per
                           />
                         </FormControl>
                         <FormDescription>
-                          Specific instructions for AI to enhance your product image
+                          Specific instructions for AI to enhance your AR model image
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  <Button 
-                    type="submit" 
-                    className="w-full"
-                    disabled={!generatedImage}
-                  >
-                    Create Product
-                  </Button>
                 </form>
               </Form>
             </CardContent>
@@ -325,7 +293,7 @@ The image should look like it was photographed in a professional studio with per
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Product Image</CardTitle>
+              <CardTitle>AR Model Image</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {!imagePreview ? (
@@ -335,7 +303,7 @@ The image should look like it was photographed in a professional studio with per
                     <div className="mt-4">
                       <label htmlFor="image-upload" className="cursor-pointer">
                         <span className="mt-2 block text-sm font-medium text-foreground">
-                          Upload product image
+                          Upload AR model image
                         </span>
                         <span className="mt-1 block text-xs text-muted-foreground">
                           PNG, JPG, GIF up to 10MB
@@ -360,11 +328,11 @@ The image should look like it was photographed in a professional studio with per
               ) : (
                 <div className="space-y-4">
                   <div className="relative">
-                    <div className="aspect-square relative overflow-hidden rounded-lg border">
+                    <div className="relative overflow-hidden rounded-lg border aspect-square">
                       <Image
                         src={imagePreview}
-                        alt="Product preview"
-                        className="object-cover"
+                        alt="AR model preview"
+                        className="object-contain"
                         fill
                       />
                     </div>
@@ -381,22 +349,23 @@ The image should look like it was photographed in a professional studio with per
                   {generationStatus === "idle" && (
                     <Alert>
                       <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Ready to optimize</AlertTitle>
+                      <AlertTitle>Ready to create</AlertTitle>
                       <AlertDescription>
-                        Fill in the product details above, then click "Generate AR-Ready Image" to create a perfect image for virtual try-on.
+                        Fill in the model details above, then click &quot;Create AR Model&quot; to generate and save your AR model.
                       </AlertDescription>
                     </Alert>
                   )}
 
                   <Button
-                    onClick={generateOptimizedImage}
+                    type="submit"
+                    onClick={form.handleSubmit(onSubmit)}
                     disabled={isGenerating || !form.watch("name") || !form.watch("category")}
                     className="w-full"
                   >
                     {isGenerating && (
                       <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     )}
-                    {isGenerating ? "Generating..." : "Generate AR-Ready Image"}
+                    {isGenerating ? "Creating AR Model..." : "Create AR Model"}
                     <Wand2 className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -435,7 +404,7 @@ The image should look like it was photographed in a professional studio with per
                     <div className="aspect-square relative overflow-hidden rounded-lg border bg-checkered">
                       <Image
                         src={generatedImage}
-                        alt="Generated AR-ready product"
+                        alt="Generated AR-ready model"
                         className="object-contain"
                         fill
                       />
