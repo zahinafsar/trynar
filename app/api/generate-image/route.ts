@@ -7,36 +7,19 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { imageData, prompt, category } = await request.json();
+    const { imageData, prompt, productName, category, instructions } = await request.json();
 
-    if (!imageData || !prompt) {
+    if (!imageData || !prompt || !productName || !category) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
       );
     }
 
-    // Remove the data URL prefix to get just the base64 data
-    const base64Data = imageData.replace(/^data:image\/[a-z]+;base64,/, '');
-
-    // Create the enhanced prompt for DALL-E
-    const enhancedPrompt = `${prompt}
-
-IMPORTANT REQUIREMENTS:
-- Create a PNG image with completely transparent background
-- Perfect for AR/virtual try-on applications
-- High quality, professional product photography
-- Centered and properly oriented
-- Clean edges with no artifacts
-- Optimal lighting and contrast
-- Remove any existing background completely
-- Maintain product proportions and details
-- Make it look like a premium product catalog image`;
-
-    // Use DALL-E 3 to generate the optimized image
+    // Use DALL-E 3 to generate the optimized image based on the prompt
     const response = await openai.images.generate({
       model: "dall-e-3",
-      prompt: enhancedPrompt,
+      prompt: prompt,
       n: 1,
       size: "1024x1024",
       quality: "hd",
@@ -52,10 +35,22 @@ IMPORTANT REQUIREMENTS:
     return NextResponse.json({
       success: true,
       imageUrl: generatedImageUrl,
+      prompt: prompt, // Return the generated prompt for debugging
     });
 
   } catch (error: any) {
     console.error('Error generating image:', error);
+    
+    // Handle specific OpenAI errors
+    if (error.code === 'content_policy_violation') {
+      return NextResponse.json(
+        { 
+          success: false, 
+          error: 'Image content violates OpenAI policy. Please try a different image or description.' 
+        },
+        { status: 400 }
+      );
+    }
     
     return NextResponse.json(
       { 

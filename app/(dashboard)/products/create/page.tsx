@@ -33,11 +33,9 @@ import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   name: z.string().min(3, { message: "Product name must be at least 3 characters." }),
-  description: z.string().optional(),
   category: z.string().min(1, { message: "Please select a category." }),
-  price: z.string().min(1, { message: "Price is required." }),
+  instructions: z.string().optional(),
   image: z.any().optional(),
-  enhancementPrompt: z.string().optional(),
 });
 
 const categories = [
@@ -64,10 +62,8 @@ export default function CreateProductPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      description: "",
       category: "",
-      price: "",
-      enhancementPrompt: "",
+      instructions: "",
     },
   });
 
@@ -80,6 +76,8 @@ export default function CreateProductPage() {
         setImagePreview(e.target?.result as string);
       };
       reader.readAsDataURL(file);
+      setGenerationStatus("idle");
+      setGeneratedImage(null);
     }
   };
 
@@ -100,6 +98,16 @@ export default function CreateProductPage() {
       return;
     }
 
+    const formValues = form.getValues();
+    if (!formValues.name || !formValues.category) {
+      toast({
+        variant: "destructive",
+        title: "Missing information",
+        description: "Please fill in the product name and category first.",
+      });
+      return;
+    }
+
     setIsGenerating(true);
     setGenerationStatus("processing");
 
@@ -111,21 +119,35 @@ export default function CreateProductPage() {
         reader.readAsDataURL(selectedImage);
       });
 
-      const category = form.getValues("category");
-      const customPrompt = form.getValues("enhancementPrompt");
-      
-      // Create enhancement prompt based on category and custom input
-      let enhancementPrompt = `Create a perfect, clean PNG image of this ${category || "product"} optimized for AR try-on. The image should have:
-- Transparent background (no background at all)
-- Perfect lighting and shadows
-- High contrast and sharp details
-- Centered and properly oriented
-- Optimal size and proportions for virtual try-on
-- Professional product photography quality`;
+      // Generate prompt based on form inputs
+      const categoryPrompts = {
+        sunglasses: "sunglasses with perfect lens reflection and frame details",
+        eyeglasses: "eyeglasses with clear lenses and precise frame geometry",
+        hats: "hat with proper shape and texture details",
+        jewelry: "jewelry piece with metallic shine and gemstone details",
+        watches: "watch with clear face and band details",
+        masks: "face mask with proper fit and material texture",
+        headphones: "headphones with sleek design and proper proportions",
+        other: "product with enhanced details and professional appearance"
+      };
 
-      if (customPrompt) {
-        enhancementPrompt += `\n\nAdditional requirements: ${customPrompt}`;
-      }
+      const categorySpecific = categoryPrompts[formValues.category as keyof typeof categoryPrompts] || categoryPrompts.other;
+      
+      const generatedPrompt = `Create a perfect PNG image of ${formValues.name} (${categorySpecific}) optimized for AR try-on applications.
+
+Requirements:
+- Completely transparent background (no background at all)
+- Professional product photography quality
+- Perfect lighting with subtle shadows
+- High contrast and sharp details
+- Centered and properly oriented for virtual try-on
+- Clean edges with no artifacts
+- Optimal size and proportions
+- Premium catalog-quality appearance
+
+${formValues.instructions ? `Additional specifications: ${formValues.instructions}` : ''}
+
+The image should look like it was photographed in a professional studio with perfect lighting, ready to be overlaid on a person's face/head in an AR application.`;
 
       // Call ChatGPT API to generate optimized image
       const response = await fetch('/api/generate-image', {
@@ -135,8 +157,10 @@ export default function CreateProductPage() {
         },
         body: JSON.stringify({
           imageData: base64Image,
-          prompt: enhancementPrompt,
-          category: category,
+          prompt: generatedPrompt,
+          productName: formValues.name,
+          category: formValues.category,
+          instructions: formValues.instructions,
         }),
       });
 
@@ -169,11 +193,11 @@ export default function CreateProductPage() {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!generatedImage && !selectedImage) {
+    if (!generatedImage) {
       toast({
         variant: "destructive",
-        title: "Image required",
-        description: "Please upload and optimize an image for your product.",
+        title: "Image optimization required",
+        description: "Please upload an image and generate the optimized version first.",
       });
       return;
     }
@@ -185,7 +209,7 @@ export default function CreateProductPage() {
       
       toast({
         title: "Product created successfully",
-        description: "Your product has been added to your catalog.",
+        description: "Your product has been added to your catalog with optimized AR image.",
       });
       
       router.push("/products");
@@ -212,11 +236,11 @@ export default function CreateProductPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>Product Information</CardTitle>
+              <CardTitle>Product Details</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
                     control={form.control}
                     name="name"
@@ -226,6 +250,9 @@ export default function CreateProductPage() {
                         <FormControl>
                           <Input placeholder="Blue Aviator Sunglasses" {...field} />
                         </FormControl>
+                        <FormDescription>
+                          This will be used in the AI prompt for image generation
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -252,7 +279,7 @@ export default function CreateProductPage() {
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Category helps optimize the image for AR try-on
+                          Category determines specific optimization for AR try-on
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -261,51 +288,20 @@ export default function CreateProductPage() {
 
                   <FormField
                     control={form.control}
-                    name="price"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price</FormLabel>
-                        <FormControl>
-                          <Input placeholder="99.99" type="number" step="0.01" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description (Optional)</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Premium aviator sunglasses with UV protection..."
-                            className="resize-none"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="enhancementPrompt"
+                    name="instructions"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Enhancement Instructions (Optional)</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="Make the lenses more reflective, adjust the frame color to be more vibrant..."
+                            placeholder="Make the lenses more reflective, adjust colors to be more vibrant, enhance metallic finish..."
                             className="resize-none"
+                            rows={4}
                             {...field}
                           />
                         </FormControl>
                         <FormDescription>
-                          Specific instructions for AI image optimization
+                          Specific instructions for AI to enhance your product image
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -315,7 +311,7 @@ export default function CreateProductPage() {
                   <Button 
                     type="submit" 
                     className="w-full"
-                    disabled={!generatedImage && !selectedImage}
+                    disabled={!generatedImage}
                   >
                     Create Product
                   </Button>
@@ -387,20 +383,20 @@ export default function CreateProductPage() {
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Ready to optimize</AlertTitle>
                       <AlertDescription>
-                        Click "Optimize for AR" to generate a perfect image for virtual try-on.
+                        Fill in the product details above, then click "Generate AR-Ready Image" to create a perfect image for virtual try-on.
                       </AlertDescription>
                     </Alert>
                   )}
 
                   <Button
                     onClick={generateOptimizedImage}
-                    disabled={isGenerating}
+                    disabled={isGenerating || !form.watch("name") || !form.watch("category")}
                     className="w-full"
                   >
                     {isGenerating && (
                       <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                     )}
-                    {isGenerating ? "Optimizing..." : "Optimize for AR"}
+                    {isGenerating ? "Generating..." : "Generate AR-Ready Image"}
                     <Wand2 className="ml-2 h-4 w-4" />
                   </Button>
                 </div>
@@ -412,16 +408,16 @@ export default function CreateProductPage() {
           {generationStatus !== "idle" && (
             <Card>
               <CardHeader>
-                <CardTitle>AI Optimization</CardTitle>
+                <CardTitle>AI Image Generation</CardTitle>
               </CardHeader>
               <CardContent>
                 {generationStatus === "processing" && (
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
                     <div className="h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
                     <div className="text-center">
-                      <h3 className="text-lg font-medium">Optimizing Image</h3>
+                      <h3 className="text-lg font-medium">Generating AR-Ready Image</h3>
                       <p className="text-sm text-muted-foreground">
-                        AI is enhancing your image for perfect AR try-on...
+                        ChatGPT is creating a perfect image for AR try-on...
                       </p>
                     </div>
                   </div>
@@ -431,19 +427,28 @@ export default function CreateProductPage() {
                   <div className="space-y-4">
                     <Alert>
                       <CheckCircle2 className="h-4 w-4" />
-                      <AlertTitle>Optimization Complete!</AlertTitle>
+                      <AlertTitle>Generation Complete!</AlertTitle>
                       <AlertDescription>
-                        Your image has been optimized for AR try-on with transparent background and perfect sizing.
+                        Your AR-ready image has been generated with transparent background and perfect optimization.
                       </AlertDescription>
                     </Alert>
                     <div className="aspect-square relative overflow-hidden rounded-lg border bg-checkered">
                       <Image
                         src={generatedImage}
-                        alt="Optimized product"
+                        alt="Generated AR-ready product"
                         className="object-contain"
                         fill
                       />
                     </div>
+                    <Button
+                      variant="outline"
+                      onClick={generateOptimizedImage}
+                      className="w-full"
+                      disabled={isGenerating}
+                    >
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      Regenerate Image
+                    </Button>
                   </div>
                 )}
 
@@ -451,9 +456,9 @@ export default function CreateProductPage() {
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
                     <AlertCircle className="h-16 w-16 text-destructive" />
                     <div className="text-center">
-                      <h3 className="text-lg font-medium">Optimization Failed</h3>
+                      <h3 className="text-lg font-medium">Generation Failed</h3>
                       <p className="text-sm text-muted-foreground">
-                        There was an error optimizing your image. Please try again.
+                        There was an error generating your AR-ready image. Please try again.
                       </p>
                     </div>
                     <Button variant="outline" onClick={() => setGenerationStatus("idle")}>
