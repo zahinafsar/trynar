@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Environment, Float, PresentationControls } from '@react-three/drei';
 import { Button } from '@/components/ui/button';
-import { ArrowRight } from 'lucide-react';
 import { Group } from 'three';
 import dynamic from 'next/dynamic';
 
@@ -199,13 +198,13 @@ export default function Home() {
               transition={{ delay: 0.4, duration: 0.8 }}
               className="pt-8"
             >
-              <Link
+              {/* <Link
                 href="/dashboard"
                 className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
               >
                 Go to Dashboard
                 <ArrowRight className="ml-1 h-4 w-4" />
-              </Link>
+              </Link> */}
             </motion.div>
           </motion.div>
         </div>

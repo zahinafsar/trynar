@@ -1,10 +1,16 @@
+"use client"
+
 import { SiteHeader } from "@/components/layout/site-header";
+import useSession from "@/hooks/auth";
+import { redirect } from "next/navigation";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const session = useSession();
+  if (!session) redirect("/");
   return (
     <div className="flex min-h-screen bg-grid-white">
       <SiteHeader />
