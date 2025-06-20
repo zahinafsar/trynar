@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
+import { ArrowLeft, Mail, AlertCircle, CheckCircle } from "lucide-react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { motion } from "framer-motion";
@@ -21,25 +20,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { signIn } from "@/lib/auth";
+import { resetPassword } from "@/lib/auth";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
 });
 
-export default function LoginPage() {
+export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const router = useRouter();
+  const [emailSent, setEmailSent] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
@@ -48,22 +44,71 @@ export default function LoginPage() {
     setAuthError(null);
     
     try {
-      const result = await signIn(values.email, values.password);
+      const result = await resetPassword(values.email);
       
       if (result.success) {
+        setEmailSent(true);
         toast({
-          title: "Login successful",
-          description: "Welcome back to your dashboard.",
+          title: "Reset email sent",
+          description: "Check your email for password reset instructions.",
         });
-        router.push("/dashboard");
       } else {
-        setAuthError(result.error || "Login failed. Please try again.");
+        setAuthError(result.error || "Failed to send reset email. Please try again.");
       }
     } catch (error) {
       setAuthError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (emailSent) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-gradient-to-b from-background to-background/80">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-grid-white/10 bg-[size:100px_100px] [mask-image:radial-gradient(white,transparent_70%)]" />
+          <div className="absolute -top-1/2 -left-1/2 w-[200%] h-[200%] bg-gradient-radial from-primary/20 to-transparent opacity-50 animate-spin-slow" />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="mx-auto w-full max-w-md space-y-6 relative z-10"
+        >
+          <div className="bg-card/50 backdrop-blur-xl shadow-xl rounded-lg border p-8 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+              className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4"
+            >
+              <CheckCircle className="h-8 w-8 text-primary" />
+            </motion.div>
+            <h1 className="text-2xl font-bold mb-2">Check Your Email</h1>
+            <p className="text-muted-foreground mb-6">
+              We've sent password reset instructions to your email address. Please check your inbox and follow the link to reset your password.
+            </p>
+            <div className="space-y-3">
+              <Button asChild className="w-full">
+                <Link href="/login">Back to Login</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full"
+                onClick={() => {
+                  setEmailSent(false);
+                  form.reset();
+                }}
+              >
+                Send Another Email
+              </Button>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
   }
 
   return (
@@ -82,10 +127,10 @@ export default function LoginPage() {
       >
         <div className="space-y-2 text-center">
           <h1 className="text-3xl font-bold tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/50">
-            Welcome Back
+            Reset Password
           </h1>
           <p className="text-muted-foreground">
-            Enter your credentials to access your account
+            Enter your email address and we'll send you a link to reset your password
           </p>
         </div>
 
@@ -123,53 +168,6 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Input
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          {...field}
-                          disabled={isLoading}
-                          className="bg-background/50"
-                        />
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                          onClick={() => setShowPassword(!showPassword)}
-                          disabled={isLoading}
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-4 w-4" />
-                          ) : (
-                            <Eye className="h-4 w-4" />
-                          )}
-                          <span className="sr-only">
-                            {showPassword ? "Hide password" : "Show password"}
-                          </span>
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <div className="flex items-center justify-end">
-                <Link 
-                  href="/forgot-password" 
-                  className="text-sm text-primary hover:text-primary/80 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
 
               <Button 
                 type="submit" 
@@ -184,8 +182,8 @@ export default function LoginPage() {
                     className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
                   />
                 )}
-                {isLoading ? "Signing in..." : "Sign In"}
-                <LogIn className="ml-2 h-4 w-4" />
+                {isLoading ? "Sending..." : "Send Reset Email"}
+                <Mail className="ml-2 h-4 w-4" />
               </Button>
             </form>
           </Form>
@@ -195,14 +193,14 @@ export default function LoginPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.8 }}
-          className="text-center text-sm"
+          className="text-center"
         >
-          Don&apos;t have an account?{" "}
           <Link 
-            href="/register" 
-            className="font-medium text-primary hover:text-primary/80 transition-colors"
+            href="/login" 
+            className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
-            Create account
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Login
           </Link>
         </motion.div>
       </motion.div>
