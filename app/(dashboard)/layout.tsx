@@ -42,7 +42,7 @@ export default function DashboardLayout({
       <SiteHeader />
       
       {/* Main Content Area */}
-      <main className="flex-1 pl-[320px] pr-8 py-8 relative">
+      <main className="flex-1 pl-[320px] pr-8 py-6 relative">
         {/* Subtle background pattern */}
         <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px] pointer-events-none" />
         
