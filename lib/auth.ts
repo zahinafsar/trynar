@@ -1,5 +1,4 @@
 import { supabase } from './supabase';
-import { AuthError } from '@supabase/supabase-js';
 
 export interface AuthResponse {
   success: boolean;
