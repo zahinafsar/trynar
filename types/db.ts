@@ -1,53 +1,29 @@
-export type UsageRow = {
+export type TokenRow = {
   id: number;
   created_at: string;
   user: string;
-  token: number;
+  amount: number;
 };
 
-export type UsageInsert = {
+export type TokenInsert = {
   user: string;
-  token: number;
+  amount: number;
 };
 
-export type UsageUpdate = {
+export type TokenUpdate = {
   id?: number;
   created_at?: string;
   user?: string;
-  token?: number;
-};
-
-export type SubscriptionRow = {
-  id: number;
-  created_at: string;
-  user: string;
-  token: number;
-};
-
-export type SubscriptionInsert = {
-  user: string;
-  token: number;
-};
-
-export type SubscriptionUpdate = {
-  id?: number;
-  created_at?: string;
-  user?: string;
-  token?: number;
+  amount?: number;
 };
 
 export type Database = {
   public: {
     Tables: {
-      usage: {
-        Row: UsageRow;
-        Insert: UsageInsert;
-        Update: UsageUpdate;
-      };
-      subscription: {
-        Row: SubscriptionRow;
-        Insert: SubscriptionInsert;
-        Update: SubscriptionUpdate;
+      tokens: {
+        Row: TokenRow;
+        Insert: TokenInsert;
+        Update: TokenUpdate;
       };
     };
   };
