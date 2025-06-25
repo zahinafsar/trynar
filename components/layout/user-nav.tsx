@@ -74,26 +74,26 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button 
           variant="ghost" 
-          className="relative h-auto w-full px-3 py-2 justify-start gap-3 hover:bg-primary/5 transition-all duration-200 rounded-lg group"
+          className="relative h-auto w-full px-4 py-3 justify-start gap-3 hover:bg-muted/50 transition-all duration-200 rounded-xl group"
         >
-          <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-lg transition-transform duration-200 group-hover:scale-105">
+          <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-lg transition-all duration-200 group-hover:scale-105 group-hover:border-primary/40">
             <AvatarImage src={user?.user_metadata?.avatar_url} className="object-cover" />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+            <AvatarFallback className="bg-gradient-to-br from-primary/20 to-primary/10 text-primary font-semibold">
               {getUserInitials(user?.user_metadata?.full_name, user?.email)}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-start text-left space-y-1">
-            <span className="text-sm font-semibold leading-none tracking-tight">
+          <div className="flex flex-col items-start text-left space-y-1 min-w-0 flex-1">
+            <span className="text-sm font-semibold leading-none tracking-tight truncate w-full">
               {displayName}
             </span>
-            <span className="text-xs text-muted-foreground/80 truncate max-w-[140px] leading-none">
+            <span className="text-xs text-muted-foreground/80 truncate w-full leading-none">
               {userEmail}
             </span>
           </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent 
-        className="w-72 p-2" 
+        className="w-72 p-2 bg-card/95 backdrop-blur-xl border-border/50" 
         align="end" 
         forceMount
         sideOffset={8}

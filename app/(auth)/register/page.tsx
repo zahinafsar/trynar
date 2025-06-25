@@ -105,7 +105,7 @@ export default function RegisterPage() {
             </motion.div>
             <h1 className="text-2xl font-bold mb-2">Account Created!</h1>
             <p className="text-muted-foreground mb-6">
-              We've sent a verification email to your inbox. Please check your email and click the verification link to activate your account.
+              We&apos;ve sent a verification email to your inbox. Please check your email and click the verification link to activate your account.
             </p>
             <Button asChild className="w-full">
               <Link href="/login">Continue to Login</Link>

@@ -37,11 +37,19 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-screen bg-grid-white">
+    <div className="flex min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Floating Sidebar */}
       <SiteHeader />
-      <main className="flex-1 px-8 py-6 ml-[240px] relative">
-        <div className="absolute inset-0 bg-background/90 backdrop-blur-xl -z-10" />
-        {children}
+      
+      {/* Main Content Area */}
+      <main className="flex-1 pl-[320px] pr-8 py-4 relative">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:50px_50px] pointer-events-none" />
+        
+        {/* Content container with backdrop */}
+        <div className="relative z-10 bg-background/60 backdrop-blur-sm rounded-2xl border border-border/50 shadow-xl shadow-black/5 p-8 min-h-[calc(100vh-4rem)]">
+          {children}
+        </div>
       </main>
     </div>
   );

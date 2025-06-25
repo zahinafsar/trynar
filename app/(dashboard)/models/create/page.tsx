@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Cuboid as Cube, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Cuboid as Cube, CheckCircle2, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -26,20 +27,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useTokens } from "@/hooks/use-tokens";
 
 const formSchema = z.object({
   productUrl: z.string().url({ message: "Please enter a valid URL." }),
-  modelName: z.string().min(3, { message: "Model name must be at least 3 characters." }),
-  quality: z.string(),
+  modelName: z.string().min(1, { message: "Model name is required." }),
+  quality: z.enum(["standard", "high", "ultra"]),
 });
+
+const qualityTokenCosts = {
+  standard: 1,
+  high: 2,
+  ultra: 3,
+};
 
 export default function CreateModelPage() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStatus, setGenerationStatus] = useState<"idle" | "processing" | "complete" | "error">("idle");
+  const [generationStatus, setGenerationStatus] = useState<
+    "idle" | "processing" | "complete" | "error"
+  >("idle");
   const router = useRouter();
   const { toast } = useToast();
+  const { balance, loading: tokensLoading, consumeTokens } = useTokens();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,16 +60,18 @@ export default function CreateModelPage() {
     },
   });
 
+  const selectedQuality = form.watch("quality");
+  const tokenCost = qualityTokenCosts[selectedQuality];
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (isGenerating) return;
 
     // Check token balance
-    const tokensAvailable = 25;
-    if (tokensAvailable <= 0) {
+    if (balance < tokenCost) {
       toast({
         variant: "destructive",
-        title: "No tokens available",
-        description: "Please purchase tokens to create 3D models.",
+        title: "Insufficient tokens",
+        description: `You need ${tokenCost} tokens for ${selectedQuality} quality. You have ${balance} tokens available.`,
       });
       return;
     }
@@ -69,14 +81,17 @@ export default function CreateModelPage() {
 
     // Simulate 3D model generation process
     try {
-      await new Promise(resolve => setTimeout(resolve, 3000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      // Consume tokens after successful generation
+      await consumeTokens(tokenCost);
+
       setGenerationStatus("complete");
       toast({
         title: "3D Model Created",
-        description: "Your 3D model has been successfully generated.",
+        description: `Your 3D model has been successfully generated using ${tokenCost} tokens.`,
       });
-      
+
       // Redirect to the model page after a delay
       setTimeout(() => {
         router.push("/models");
@@ -86,7 +101,8 @@ export default function CreateModelPage() {
       toast({
         variant: "destructive",
         title: "Generation failed",
-        description: "There was an error creating your 3D model. Please try again.",
+        description:
+          "There was an error creating your 3D model. Please try again.",
       });
     } finally {
       setIsGenerating(false);
@@ -112,8 +128,17 @@ export default function CreateModelPage() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Token Required</AlertTitle>
                     <AlertDescription>
-                      Creating a 3D model will use 1 token from your account.
-                      You currently have 25 tokens available.
+                      Creating a {selectedQuality} quality 3D model will use{" "}
+                      {tokenCost} token{tokenCost !== 1 ? "s" : ""} from your
+                      account.
+                      {tokensLoading ? (
+                        <span> Loading token balance...</span>
+                      ) : (
+                        <span>
+                          {" "}
+                          You currently have {balance} tokens available.
+                        </span>
+                      )}
                     </AlertDescription>
                   </Alert>
 
@@ -124,14 +149,15 @@ export default function CreateModelPage() {
                       <FormItem>
                         <FormLabel>Product URL</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="https://example.com/product" 
-                            {...field} 
-                            disabled={isGenerating} 
+                          <Input
+                            placeholder="https://example.com/product"
+                            {...field}
+                            disabled={isGenerating}
                           />
                         </FormControl>
                         <FormDescription>
-                          Enter the URL of the product you want to create a 3D model for.
+                          Enter the URL of the product you want to create a 3D
+                          model for.
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -145,10 +171,10 @@ export default function CreateModelPage() {
                       <FormItem>
                         <FormLabel>Model Name</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="My Product 3D Model" 
-                            {...field} 
-                            disabled={isGenerating} 
+                          <Input
+                            placeholder="My Product 3D Model"
+                            {...field}
+                            disabled={isGenerating}
                           />
                         </FormControl>
                         <FormDescription>
@@ -165,9 +191,9 @@ export default function CreateModelPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Quality</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value} 
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
                           disabled={isGenerating}
                         >
                           <FormControl>
@@ -176,9 +202,15 @@ export default function CreateModelPage() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="standard">Standard (1 token)</SelectItem>
-                            <SelectItem value="high">High (2 tokens)</SelectItem>
-                            <SelectItem value="ultra">Ultra (3 tokens)</SelectItem>
+                            <SelectItem value="standard">
+                              Standard (1 token)
+                            </SelectItem>
+                            <SelectItem value="high">
+                              High (2 tokens)
+                            </SelectItem>
+                            <SelectItem value="ultra">
+                              Ultra (3 tokens)
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                         <FormDescription>
@@ -191,7 +223,11 @@ export default function CreateModelPage() {
                 </CardContent>
               </Card>
 
-              <Button type="submit" className="w-full" disabled={isGenerating}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isGenerating || tokensLoading || balance < tokenCost}
+              >
                 {isGenerating && (
                   <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 )}
@@ -212,7 +248,7 @@ export default function CreateModelPage() {
                     <div>
                       <h3 className="text-lg font-medium">Ready to Generate</h3>
                       <p className="text-sm text-muted-foreground">
-                        Fill in the form and click "Generate 3D Model" to start.
+                        Fill in the form and click &quot;Generate 3D Model&quot; to start.
                       </p>
                     </div>
                   </div>
@@ -222,7 +258,9 @@ export default function CreateModelPage() {
                   <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
                     <div className="h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
                     <div>
-                      <h3 className="text-lg font-medium">Generating 3D Model</h3>
+                      <h3 className="text-lg font-medium">
+                        Generating 3D Model
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         This may take a few minutes. Please wait...
                       </p>
@@ -248,12 +286,9 @@ export default function CreateModelPage() {
                     <div>
                       <h3 className="text-lg font-medium">Generation Failed</h3>
                       <p className="text-sm text-muted-foreground">
-                        There was an error creating your 3D model. Please try again.
+                        There was an error creating your 3D model.
                       </p>
                     </div>
-                    <Button variant="outline" onClick={() => setGenerationStatus("idle")}>
-                      Try Again
-                    </Button>
                   </div>
                 )}
               </div>
