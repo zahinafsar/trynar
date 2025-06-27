@@ -162,15 +162,6 @@ export default function LoginPage() {
                 )}
               />
               
-              <div className="flex items-center justify-end">
-                <Link 
-                  href="/forgot-password" 
-                  className="text-sm text-primary hover:text-primary/80 transition-colors"
-                >
-                  Forgot password?
-                </Link>
-              </div>
-
               <Button 
                 type="submit" 
                 className="w-full bg-primary/90 hover:bg-primary backdrop-blur-sm" 

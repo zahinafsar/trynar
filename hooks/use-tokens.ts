@@ -55,7 +55,7 @@ export function useTokens() {
       throw new Error('User not authenticated');
     }
 
-    const response = await addTokens(user.id, amount);
+    const response = await addTokens(amount);
     if (!response.success) {
       throw new Error(response.error || 'Failed to add tokens');
     }

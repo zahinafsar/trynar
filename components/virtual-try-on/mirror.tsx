@@ -11,7 +11,7 @@ export const Mirror = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [inputResolution, setInputResolution] = useState({
     width: 1080,
-    height: 900,
+    height: 1080,
   });
 
   useEffect(() => {
