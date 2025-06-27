@@ -89,11 +89,11 @@ export default function ProductDetailPage() {
 
   const getEmbedCode = () => {
     const baseUrl = window.location.origin;
-    return `<iframe src="${baseUrl}/products/try-on/${product?.id}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>`;
+    return `<iframe src="${baseUrl}/try-on/${product?.id}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>`;
   };
 
   const getArLink = () => {
-    return `${window.location.origin}/products/try-on/${product?.id}`;
+    return `${window.location.origin}/try-on/${product?.id}`;
   };
 
   const handleCopyEmbedCode = () => {
@@ -151,7 +151,7 @@ export default function ProductDetailPage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-2">Product not found</h1>
-          <p className="text-muted-foreground mb-4">The product you're looking for doesn't exist.</p>
+          <p className="text-muted-foreground mb-4">The product you&apos;re looking for doesn&apos;t exist.</p>
           <Button onClick={() => router.back()}>Go Back</Button>
         </div>
       </div>
@@ -242,7 +242,7 @@ export default function ProductDetailPage() {
           className="space-y-6"
         >
           {/* Stats and Description */}
-          <Card className="bg-gradient-to-r from-primary/5 to-purple-500/5 border-primary/20">
+          {/* <Card className="bg-gradient-to-r from-primary/5 to-purple-500/5 border-primary/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="text-2xl font-bold text-primary">
@@ -266,7 +266,7 @@ export default function ProductDetailPage() {
 
               <div className="flex gap-3">
                 <Button asChild className="flex-1">
-                  <Link href={`/products/try-on/${product.id}`}>
+                  <Link href={`/try-on/${product.id}`}>
                     <Smartphone className="mr-2 h-4 w-4" />
                     Try in AR
                   </Link>
@@ -280,7 +280,7 @@ export default function ProductDetailPage() {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Embed & Share Options */}
           <Card>
@@ -333,35 +333,11 @@ export default function ProductDetailPage() {
                   Share Link
                 </Button>
                 <Button variant="outline" size="sm" asChild>
-                  <Link href={`/products/try-on/${product.id}`} target="_blank">
+                  <Link href={`/try-on/${product.id}`} target="_blank">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Open AR
                   </Link>
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Features */}
-          <Card>
-            <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                Key Features
-              </h3>
-              <div className="space-y-3">
-                {product.features.map((feature, index) => (
-                  <motion.div
-                    key={feature}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="h-2 w-2 rounded-full bg-primary" />
-                    <span className="text-sm">{feature}</span>
-                  </motion.div>
-                ))}
               </div>
             </CardContent>
           </Card>
@@ -375,7 +351,7 @@ export default function ProductDetailPage() {
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
                 This product has been optimized for augmented reality try-on experiences.
-                Compatible with iOS 12+ and Android 8.0+ devices.
+                Compatible with any device
               </p>
               <div className="flex items-center gap-2 text-sm">
                 <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">

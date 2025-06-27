@@ -9,9 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Group } from "three";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/auth";
+import { Camera } from "lucide-react";
 
 const VirtualTryOn = dynamic(
-  () => import("@/components/virtual-try-on").then((mod) => mod.VirtualTryOn),
+  () => import("@/components/try-on").then((mod) => mod.VirtualTryOn),
   {
     ssr: false,
     loading: () => (
@@ -217,36 +218,36 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Virtual Try-On Demo Section */}
-      <div className="py-16 px-4 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          {/* <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center space-y-6 mb-12"
-          >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Camera className="h-8 w-8 text-primary" />
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                Virtual Try-On Experience
-              </h2>
-            </div>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Experience our cutting-edge virtual try-on technology. Test different products using your camera with real-time face detection and AR overlay.
-            </p>
-          </motion.div> */}
+      <div className="flex flex-col items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center space-y-6 mb-12"
+        >
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Camera className="h-8 w-8 text-primary" />
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
+              Virtual Try-On Experience
+            </h2>
+          </div>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+            Experience our cutting-edge virtual try-on technology. Test
+            different products using your camera with real-time face detection
+            and AR overlay.
+          </p>
+        </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            <VirtualTryOn />
-          </motion.div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          viewport={{ once: true }}
+          className="relative w-[700px] h-[500px]"
+        >
+          <VirtualTryOn />
+        </motion.div>
       </div>
     </div>
   );
