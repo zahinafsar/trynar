@@ -10,6 +10,7 @@ import { Group } from "three";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/auth";
 import { Camera } from "lucide-react";
+import Image from "next/image";
 
 const VirtualTryOn = dynamic(
   () => import("@/components/try-on").then((mod) => mod.VirtualTryOn),
@@ -132,6 +133,37 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-b from-background to-background/80">
+        <motion.div
+          animate={{ y: [-5, 5, -5] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-8 right-8 z-20 group"
+          whileHover={{
+            scale: 1.1,
+            rotateY: 15,
+            rotateX: 5,
+            transition: { duration: 0.3 },
+          }}
+          style={{
+            perspective: "1000px",
+            transformStyle: "preserve-3d",
+          }}
+        >
+          <div className="w-24 h-24 relative">
+            <Image
+              src="/bolt.png"
+              alt="Lightning Bolt"
+              width={48}
+              height={48}
+              className="w-full h-full object-contain drop-shadow-2xl filter brightness-110 contrast-125"
+              style={{
+                filter:
+                  "drop-shadow(0 10px 20px rgba(147, 51, 234, 0.4)) drop-shadow(0 5px 10px rgba(168, 85, 247, 0.3))",
+                transform: "translateZ(5px)",
+              }}
+            />
+          </div>
+        </motion.div>
+
         {/* Animated background elements */}
         <div className="absolute inset-0 overflow-hidden opacity-50">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-800 via-violet-900 to-slate-900 opacity-70" />
@@ -218,36 +250,39 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-          className="text-center space-y-6 mb-12"
-        >
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Camera className="h-8 w-8 text-primary" />
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              Virtual Try-On Experience
-            </h2>
+      <div className="relative py-24 bg-gradient-to-b from-background to-background/95 overflow-hidden">
+        <div className="relative z-10 max-w-6xl mx-auto px-4">
+          {/* Section Title */}
+          <div className="text-center mb-10">
+            <div className="flex items-center justify-center gap-3 mb-4">
+              <span className="bg-gradient-to-r from-purple-600 to-pink-600 p-3 rounded-full">
+                <Camera className="h-7 w-7 text-white" />
+              </span>
+              <h2 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-500 to-pink-500">
+                Virtual Try-On Studio
+              </h2>
+            </div>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+              Experience our advanced virtual try-on technology. Test different
+              accessories using real-time face detection and AR overlay.
+            </p>
           </div>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Experience our cutting-edge virtual try-on technology. Test
-            different products using your camera with real-time face detection
-            and AR overlay.
-          </p>
-        </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          viewport={{ once: true }}
-          className="relative w-[700px] h-[500px]"
-        >
-          <VirtualTryOn />
-        </motion.div>
+          {/* Main Content: Two Cards Side by Side */}
+          <div className="flex flex-col md:flex-row gap-8 items-start justify-center w-full">
+            <div className="flex-1 min-w-[720px] bg-background rounded-2xl border border-border shadow-lg overflow-hidden">
+              <div className="flex items-center justify-between px-5 py-3 border-b border-border bg-background/80">
+                <div className="flex items-center gap-2">
+                  <Camera className="h-8 w-8 text-primary" />
+                  <span className="font-semibold text-lg">Camera View</span>
+                </div>
+              </div>
+              <div className="relative w-full aspect-video bg-black flex items-center justify-center">
+                <VirtualTryOn />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

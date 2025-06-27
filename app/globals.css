@@ -81,3 +81,14 @@
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground));
 }
+
+@keyframes pulse {
+  0% {
+    opacity: 0.3;
+    transform: translateZ(10px) scale(0.95);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translateZ(10px) scale(1.05);
+  }
+}
