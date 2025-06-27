@@ -11,23 +11,28 @@ import {
   Eye, 
   Smartphone, 
   Download,
-  ExternalLink,
+  Code,
+  Link as LinkIcon,
   Sparkles,
   Zap,
-  Star
+  Star,
+  Copy,
+  ExternalLink
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
 interface ProductData {
   id: string;
   name: string;
   description: string;
-  price: number;
   category: string;
   originalImage: string;
   generatedImage: string;
@@ -47,6 +52,7 @@ export default function ProductDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [product, setProduct] = useState<ProductData | null>(null);
   const [activeImage, setActiveImage] = useState<'original' | 'generated'>('generated');
+  const [showEmbedCode, setShowEmbedCode] = useState(false);
 
   useEffect(() => {
     // Simulate loading product data
@@ -57,7 +63,6 @@ export default function ProductDetailPage() {
         id: params.id as string,
         name: "Premium Blue Sunglasses",
         description: "High-quality sunglasses with UV protection and polarized lenses. Perfect for outdoor activities and everyday wear. Features a durable frame and comfortable fit.",
-        price: 129.99,
         category: "Sunglasses",
         originalImage: "https://images.pexels.com/photos/701877/pexels-photo-701877.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
         generatedImage: "https://images.pexels.com/photos/1674666/pexels-photo-1674666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
@@ -82,12 +87,45 @@ export default function ProductDetailPage() {
     loadProduct();
   }, [params.id]);
 
-  const handleShare = () => {
-    navigator.clipboard.writeText(window.location.href);
+  const getEmbedCode = () => {
+    const baseUrl = window.location.origin;
+    return `<iframe src="${baseUrl}/products/try-on/${product?.id}" width="100%" height="600" frameborder="0" allowfullscreen></iframe>`;
+  };
+
+  const getArLink = () => {
+    return `${window.location.origin}/products/try-on/${product?.id}`;
+  };
+
+  const handleCopyEmbedCode = () => {
+    navigator.clipboard.writeText(getEmbedCode());
     toast({
-      title: "Link copied",
-      description: "Product link has been copied to your clipboard.",
+      title: "Embed code copied",
+      description: "The iframe embed code has been copied to your clipboard.",
     });
+  };
+
+  const handleCopyArLink = () => {
+    navigator.clipboard.writeText(getArLink());
+    toast({
+      title: "AR link copied",
+      description: "The AR try-on link has been copied to your clipboard.",
+    });
+  };
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product?.name,
+        text: `Check out this AR try-on experience for ${product?.name}`,
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Link copied",
+        description: "Product link has been copied to your clipboard.",
+      });
+    }
   };
 
   const handleDownload = () => {
@@ -203,12 +241,12 @@ export default function ProductDetailPage() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          {/* Price and Stats */}
+          {/* Stats and Description */}
           <Card className="bg-gradient-to-r from-primary/5 to-purple-500/5 border-primary/20">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="text-3xl font-bold text-primary">
-                  ${product.price.toFixed(2)}
+                <div className="text-2xl font-bold text-primary">
+                  AR Experience
                 </div>
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
                   <div className="flex items-center gap-1">
@@ -233,10 +271,71 @@ export default function ProductDetailPage() {
                     Try in AR
                   </Link>
                 </Button>
-                <Button variant="outline" asChild>
-                  <Link href="#" target="_blank">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setShowEmbedCode(!showEmbedCode)}
+                >
+                  <Code className="mr-2 h-4 w-4" />
+                  Embed
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Embed & Share Options */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <LinkIcon className="h-5 w-5 text-primary" />
+                Share & Embed
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* AR Link */}
+              <div className="space-y-2">
+                <Label htmlFor="ar-link">AR Try-On Link</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="ar-link"
+                    value={getArLink()}
+                    readOnly
+                    className="font-mono text-sm"
+                  />
+                  <Button variant="outline" size="icon" onClick={handleCopyArLink}>
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Embed Code */}
+              <div className="space-y-2">
+                <Label htmlFor="embed-code">Embed Code (iframe)</Label>
+                <div className="space-y-2">
+                  <Textarea
+                    id="embed-code"
+                    value={getEmbedCode()}
+                    readOnly
+                    className="font-mono text-sm resize-none"
+                    rows={3}
+                  />
+                  <Button variant="outline" size="sm" onClick={handleCopyEmbedCode} className="w-full">
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy Embed Code
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <Separator />
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="sm" onClick={handleShare}>
+                  <Share2 className="mr-2 h-4 w-4" />
+                  Share Link
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link href={`/products/try-on/${product.id}`} target="_blank">
                     <ExternalLink className="mr-2 h-4 w-4" />
-                    Visit Store
+                    Open AR
                   </Link>
                 </Button>
               </div>
