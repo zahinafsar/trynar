@@ -1,10 +1,10 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { type NextRequest, NextResponse } from "next/server"
-import OpenAI from "openai"
+// import OpenAI from "openai"
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
 
 const prompt = {
   sunglasses: "generate front side view of this sunglasses, remove arms, background and any other text or objects. We will use this image for Augmented Reality"
@@ -15,9 +15,9 @@ export async function POST(request: NextRequest) {
     const supabase = await createSupabaseServer()
 
     // Check if OpenAI API key is configured
-    if (!process.env.OPENAI_API_KEY) {
-      return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
-    }
+    // if (!process.env.OPENAI_API_KEY) {
+    //   return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
+    // }
 
     const formData = await request.formData()
     const image = formData.get("image") as File
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     //   })
     // }
 
-    // dummy
+    // dummy token consumption for demo
     await supabase.from('tokens').insert({
       amount: -15000,
     })
@@ -58,13 +58,13 @@ export async function POST(request: NextRequest) {
     console.error("Error editing image:", error)
 
     // Handle specific OpenAI API errors
-    if (error?.status === 401) {
-      return NextResponse.json({ error: "Invalid OpenAI API key" }, { status: 401 })
-    }
+    // if (error?.status === 401) {
+    //   return NextResponse.json({ error: "Invalid OpenAI API key" }, { status: 401 })
+    // }
 
-    if (error?.status === 429) {
-      return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 })
-    }
+    // if (error?.status === 429) {
+    //   return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 })
+    // }
 
     return NextResponse.json(
       {
