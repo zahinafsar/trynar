@@ -6,6 +6,7 @@ export type TokenRow = {
 };
 
 export type TokenInsert = {
+  user?: string;
   amount: number;
 };
 
@@ -17,16 +18,26 @@ export type ModelRow = {
   id: number;
   created_at: string;
   user: string;
-  url: string;
-  category: string;
+  name: string;
+  product_url: string;
+  image_url?: string;
+  category?: string;
 };
 
 export type ModelInsert = {
-  url: string;
-  category: string;
+  user: string;
+  name: string;
+  product_url: string;
+  image_url?: string;
+  category?: string;
+  url?: string;
 };
 
 export type ModelUpdate = {
+  user?: string;
+  name?: string;
+  product_url?: string;
+  image_url?: string;
   url?: string;
   category?: string;
 };
@@ -46,4 +57,4 @@ export type Database = {
       };
     };
   };
-}; 
+};
