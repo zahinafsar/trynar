@@ -1,9 +1,6 @@
 // Single landmark indices for each feature
 const LEFT_EYE_INDEX = 159;  // Center of left eye (more accurate)
 const RIGHT_EYE_INDEX = 386; // Center of right eye (more accurate)
-// const NOSE_INDEX = 4;       // Bridge of nose (more stable)
-// const LEFT_EAR_INDEX = 234; // Top of left ear
-// const RIGHT_EAR_INDEX = 454; // Top of right ear
 
 // Load sunglasses image
 const sunglasses = new Image();
@@ -11,10 +8,13 @@ sunglasses.src = '/sunglass.png';
 sunglasses.width = 800/3;  // Configure base width for scaling
 sunglasses.height = 300/3; // Configure base height for scaling
 
-export const Object3D = (prediction: any, ctx: any) => {
+export const Object3D = (prediction: any, ctx: any, options?: { scale: number; opacity: number; }) => {
   if (!prediction) return;
   const keyPoints = prediction.keypoints;
   if (!keyPoints) return;
+  
+  const { scale = 1, opacity = 0.9 } = options || {};
+  
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   
   // Get eye positions
@@ -32,17 +32,21 @@ export const Object3D = (prediction: any, ctx: any) => {
     // Calculate the angle between eyes for rotation
     const angle = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
     
-    // Scale based on eye distance (reduced scale for smaller size)
-    const scale = eyeDistance / 120;
-    const width = sunglasses.width * scale;
-    const height = sunglasses.height * scale;
+    // Scale based on eye distance and user preference
+    const baseScale = eyeDistance / 120;
+    const finalScale = baseScale * scale;
+    const width = sunglasses.width * finalScale;
+    const height = sunglasses.height * finalScale;
     
     // Center position between eyes, with vertical offset
     const centerX = (leftEye.x + rightEye.x) / 2;
-    const centerY = (leftEye.y + rightEye.y) / 2 + (height * 0.15); // Added 15% of height as offset
+    const centerY = (leftEye.y + rightEye.y) / 2 + (height * 0.15);
     
     // Save the current canvas state
     ctx.save();
+    
+    // Set opacity
+    ctx.globalAlpha = opacity;
     
     // Translate to the center point
     ctx.translate(centerX, centerY);
@@ -62,37 +66,4 @@ export const Object3D = (prediction: any, ctx: any) => {
     // Restore the canvas state
     ctx.restore();
   }
-
-  // Draw single dot for left eye
-  // ctx.beginPath();
-  // ctx.arc(leftEye.x, leftEye.y, 3, 0, 3 * Math.PI);
-  // ctx.fillStyle = "#00FFFF"; // Cyan for eyes
-  // ctx.fill();
-
-  // // Draw single dot for right eye
-  // ctx.beginPath();
-  // ctx.arc(rightEye.x, rightEye.y, 3, 0, 3 * Math.PI);
-  // ctx.fillStyle = "#00FFFF"; // Cyan for eyes
-  // ctx.fill();
-
-  // // Draw single dot for nose
-  // const nose = keyPoints[NOSE_INDEX];
-  // ctx.beginPath();
-  // ctx.arc(nose.x, nose.y, 3, 0, 3 * Math.PI);
-  // ctx.fillStyle = "#FF69B4"; // Pink for nose
-  // ctx.fill();
-
-  // // Draw single dot for left ear
-  // const leftEar = keyPoints[LEFT_EAR_INDEX];
-  // ctx.beginPath();
-  // ctx.arc(leftEar.x, leftEar.y, 3, 0, 3 * Math.PI);
-  // ctx.fillStyle = "#98FB98"; // Light green for ears
-  // ctx.fill();
-
-  // // Draw single dot for right ear
-  // const rightEar = keyPoints[RIGHT_EAR_INDEX];
-  // ctx.beginPath();
-  // ctx.arc(rightEar.x, rightEar.y, 3, 0, 3 * Math.PI);
-  // ctx.fillStyle = "#98FB98"; // Light green for ears
-  // ctx.fill();
 };

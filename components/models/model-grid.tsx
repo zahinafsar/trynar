@@ -95,14 +95,34 @@ export function ModelGrid() {
   const [view, setView] = useState<"grid" | "list">("grid");
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <Tabs defaultValue="all" className="w-[400px]">
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="complete">Complete</TabsTrigger>
-            <TabsTrigger value="processing">Processing</TabsTrigger>
-            <TabsTrigger value="failed">Failed</TabsTrigger>
+          <TabsList className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20">
+            <TabsTrigger 
+              value="all"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+            >
+              All
+            </TabsTrigger>
+            <TabsTrigger 
+              value="complete"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+            >
+              Complete
+            </TabsTrigger>
+            <TabsTrigger 
+              value="processing"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+            >
+              Processing
+            </TabsTrigger>
+            <TabsTrigger 
+              value="failed"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white"
+            >
+              Failed
+            </TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="flex space-x-2">
@@ -110,6 +130,10 @@ export function ModelGrid() {
             variant={view === "grid" ? "default" : "outline"}
             size="icon"
             onClick={() => setView("grid")}
+            className={view === "grid" 
+              ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0" 
+              : "border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+            }
           >
             <span className="grid grid-cols-2 gap-0.5">
               <span className="h-1.5 w-1.5 rounded-sm bg-current" />
@@ -123,6 +147,10 @@ export function ModelGrid() {
             variant={view === "list" ? "default" : "outline"}
             size="icon"
             onClick={() => setView("list")}
+            className={view === "list" 
+              ? "bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0" 
+              : "border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+            }
           >
             <span className="flex flex-col gap-0.5">
               <span className="h-1 w-5 rounded-sm bg-current" />
@@ -137,7 +165,7 @@ export function ModelGrid() {
       {view === "grid" ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {models.map((model) => (
-            <Card key={model.id} className="overflow-hidden bg-card">
+            <Card key={model.id} className="overflow-hidden bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10 hover:border-purple-500/40 transition-all duration-300">
               <CardHeader className="p-0">
                 <div className="relative aspect-square">
                   <Image
@@ -148,10 +176,10 @@ export function ModelGrid() {
                   />
                   <Badge
                     className={cn(
-                      "absolute top-2 right-2",
-                      model.status === "complete" && "bg-green-500",
-                      model.status === "processing" && "bg-blue-500",
-                      model.status === "failed" && "bg-red-500"
+                      "absolute top-2 right-2 border-0",
+                      model.status === "complete" && "bg-green-500/20 text-green-400",
+                      model.status === "processing" && "bg-blue-500/20 text-blue-400",
+                      model.status === "failed" && "bg-red-500/20 text-red-400"
                     )}
                   >
                     {model.status}
@@ -159,41 +187,54 @@ export function ModelGrid() {
                 </div>
               </CardHeader>
               <CardContent className="p-4">
-                <CardTitle className="text-lg">{model.name}</CardTitle>
-                <p className="text-sm text-muted-foreground mt-1">
+                <CardTitle className="text-lg text-white">{model.name}</CardTitle>
+                <p className="text-sm text-gray-300 mt-1">
                   {model.productName}
                 </p>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   Created {formatDistanceToNow(model.createdAt, { addSuffix: true })}
                 </p>
               </CardContent>
               <CardFooter className="p-4 pt-0 flex justify-between">
-                <Button variant="outline" size="sm" asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                  asChild
+                >
                   <Link href={`/models/${model.id}`}>
                     <Eye className="mr-2 h-4 w-4" />
                     View
                   </Link>
                 </Button>
                 <div className="flex space-x-1">
-                  <Button variant="outline" size="icon" className="h-8 w-8">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-8 w-8 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                  >
                     <Share2 className="h-4 w-4" />
                     <span className="sr-only">Share</span>
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="icon" className="h-8 w-8">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="h-8 w-8 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                      >
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">More</span>
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>Edit</DropdownMenuItem>
-                      <DropdownMenuItem>Regenerate</DropdownMenuItem>
-                      <DropdownMenuItem>Copy AR link</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuContent align="end" className="bg-slate-900 border-purple-500/20">
+                      <DropdownMenuLabel className="text-gray-300">Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator className="bg-purple-500/20" />
+                      <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Edit</DropdownMenuItem>
+                      <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Regenerate</DropdownMenuItem>
+                      <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Copy AR link</DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-purple-500/20" />
+                      <DropdownMenuItem className="text-red-400 hover:bg-red-900/20 hover:text-red-300">
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -206,10 +247,10 @@ export function ModelGrid() {
       ) : (
         <div className="space-y-4">
           {models.map((model) => (
-            <Card key={model.id} className="bg-card">
+            <Card key={model.id} className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10 hover:border-purple-500/40 transition-all duration-300">
               <CardContent className="p-4">
                 <div className="flex items-center space-x-4">
-                  <div className="relative h-16 w-16 overflow-hidden rounded-md">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-md border border-purple-500/20">
                     <Image
                       src={model.thumbnail}
                       alt={model.name}
@@ -218,53 +259,66 @@ export function ModelGrid() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium">{model.name}</h3>
-                    <p className="text-sm text-muted-foreground">
+                    <h3 className="font-medium text-white">{model.name}</h3>
+                    <p className="text-sm text-gray-300">
                       {model.productName}
                     </p>
                     <div className="flex items-center space-x-2 mt-1">
                       <Badge
                         variant="outline"
                         className={cn(
-                          "text-xs",
-                          model.status === "complete" && "bg-green-500/10 text-green-500 hover:bg-green-500/10 hover:text-green-500",
-                          model.status === "processing" && "bg-blue-500/10 text-blue-500 hover:bg-blue-500/10 hover:text-blue-500",
-                          model.status === "failed" && "bg-red-500/10 text-red-500 hover:bg-red-500/10 hover:text-red-500"
+                          "text-xs border-0",
+                          model.status === "complete" && "bg-green-500/20 text-green-400",
+                          model.status === "processing" && "bg-blue-500/20 text-blue-400",
+                          model.status === "failed" && "bg-red-500/20 text-red-400"
                         )}
                       >
                         {model.status}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-xs text-gray-400">
                         {formatDistanceToNow(model.createdAt, { addSuffix: true })}
                       </span>
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                      asChild
+                    >
                       <Link href={`/models/${model.id}`}>
                         <Eye className="mr-2 h-4 w-4" />
                         View
                       </Link>
                     </Button>
-                    <Button variant="outline" size="icon" className="h-8 w-8">
+                    <Button 
+                      variant="outline" 
+                      size="icon" 
+                      className="h-8 w-8 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                    >
                       <Share2 className="h-4 w-4" />
                       <span className="sr-only">Share</span>
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="icon" className="h-8 w-8">
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="h-8 w-8 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                           <span className="sr-only">More</span>
                         </Button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Regenerate</DropdownMenuItem>
-                        <DropdownMenuItem>Copy AR link</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
+                      <DropdownMenuContent align="end" className="bg-slate-900 border-purple-500/20">
+                        <DropdownMenuLabel className="text-gray-300">Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator className="bg-purple-500/20" />
+                        <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Regenerate</DropdownMenuItem>
+                        <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Copy AR link</DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-purple-500/20" />
+                        <DropdownMenuItem className="text-red-400 hover:bg-red-900/20 hover:text-red-300">
                           Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>

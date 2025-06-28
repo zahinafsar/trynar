@@ -151,7 +151,7 @@ export default function CreateARModelPage() {
           description: "Your AR model has been generated and saved to the database.",
         });
         
-        router.push("/models");
+        router.push("/products");
       } else {
         throw new Error(result.error || 'Failed to generate image');
       }
@@ -199,22 +199,27 @@ export default function CreateARModelPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Create AR Model</h2>
-        <p className="text-muted-foreground">
-          Add a new AR model with AI-optimized images for virtual try-on
+    <div className="space-y-8">
+      {/* Header Section with Gradient Text */}
+      <div className="space-y-4">
+        <h2 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Create AR Model
+        </h2>
+        <p className="text-lg text-gray-300 max-w-2xl">
+          Add a new AR model with AI-optimized images for virtual try-on experiences.
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         {/* AR Model Form */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>AR Model Details</CardTitle>
+          <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+            <CardHeader className="border-b border-purple-500/10">
+              <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                AR Model Details
+              </CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
@@ -222,11 +227,15 @@ export default function CreateARModelPage() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Model Name</FormLabel>
+                        <FormLabel className="text-gray-300">Model Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Blue Aviator Sunglasses" {...field} />
+                          <Input 
+                            placeholder="Blue Aviator Sunglasses" 
+                            {...field} 
+                            className="bg-slate-800/50 border-purple-500/30 text-white placeholder:text-gray-400"
+                          />
                         </FormControl>
-                        <FormDescription>
+                        <FormDescription className="text-gray-400">
                           This will be used in the AI prompt for image generation
                         </FormDescription>
                         <FormMessage />
@@ -239,14 +248,14 @@ export default function CreateARModelPage() {
                     name="category"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Category</FormLabel>
+                        <FormLabel className="text-gray-300">Category</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-slate-800/50 border-purple-500/30 text-white">
                               <SelectValue placeholder="Select a category" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="bg-slate-900 border-purple-500/20">
                             {categories.map((category) => (
                               <SelectItem key={category.value} value={category.value}>
                                 {category.label}
@@ -254,7 +263,7 @@ export default function CreateARModelPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormDescription>
+                        <FormDescription className="text-gray-400">
                           Category determines specific optimization for AR try-on
                         </FormDescription>
                         <FormMessage />
@@ -267,16 +276,16 @@ export default function CreateARModelPage() {
                     name="instructions"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Enhancement Instructions (Optional)</FormLabel>
+                        <FormLabel className="text-gray-300">Enhancement Instructions (Optional)</FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Make the lenses more reflective, adjust colors to be more vibrant, enhance metallic finish..."
-                            className="resize-none"
+                            className="resize-none bg-slate-800/50 border-purple-500/30 text-white placeholder:text-gray-400"
                             rows={4}
                             {...field}
                           />
                         </FormControl>
-                        <FormDescription>
+                        <FormDescription className="text-gray-400">
                           Specific instructions for AI to enhance your AR model image
                         </FormDescription>
                         <FormMessage />
@@ -291,21 +300,25 @@ export default function CreateARModelPage() {
 
         {/* Image Upload and Processing */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>AR Model Image</CardTitle>
+          <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+            <CardHeader className="border-b border-purple-500/10">
+              <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                AR Model Image
+              </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="pt-6 space-y-4">
               {!imagePreview ? (
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8">
+                <div className="border-2 border-dashed border-purple-500/30 rounded-xl p-8 bg-gradient-to-br from-purple-900/10 to-pink-900/10">
                   <div className="text-center">
-                    <ImageIcon className="mx-auto h-12 w-12 text-muted-foreground" />
+                    <div className="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-4">
+                      <ImageIcon className="h-8 w-8 text-white" />
+                    </div>
                     <div className="mt-4">
                       <label htmlFor="image-upload" className="cursor-pointer">
-                        <span className="mt-2 block text-sm font-medium text-foreground">
+                        <span className="mt-2 block text-sm font-medium text-white">
                           Upload AR model image
                         </span>
-                        <span className="mt-1 block text-xs text-muted-foreground">
+                        <span className="mt-1 block text-xs text-gray-400">
                           PNG, JPG, GIF up to 10MB
                         </span>
                       </label>
@@ -317,7 +330,10 @@ export default function CreateARModelPage() {
                         onChange={handleImageUpload}
                       />
                     </div>
-                    <Button className="mt-4" asChild>
+                    <Button 
+                      className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0" 
+                      asChild
+                    >
                       <label htmlFor="image-upload" className="cursor-pointer">
                         <Upload className="mr-2 h-4 w-4" />
                         Choose Image
@@ -328,7 +344,7 @@ export default function CreateARModelPage() {
               ) : (
                 <div className="space-y-4">
                   <div className="relative">
-                    <div className="relative overflow-hidden rounded-lg border aspect-square">
+                    <div className="relative overflow-hidden rounded-xl border border-purple-500/20 aspect-square">
                       <Image
                         src={imagePreview}
                         alt="AR model preview"
@@ -339,7 +355,7 @@ export default function CreateARModelPage() {
                     <Button
                       variant="destructive"
                       size="icon"
-                      className="absolute top-2 right-2"
+                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700"
                       onClick={removeImage}
                     >
                       <X className="h-4 w-4" />
@@ -347,11 +363,11 @@ export default function CreateARModelPage() {
                   </div>
 
                   {generationStatus === "idle" && (
-                    <Alert>
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertTitle>Ready to create</AlertTitle>
-                      <AlertDescription>
-                        Fill in the model details above, then click &quot;Create AR Model&quot; to generate and save your AR model.
+                    <Alert className="bg-purple-900/20 border-purple-500/30">
+                      <AlertCircle className="h-4 w-4 text-purple-400" />
+                      <AlertTitle className="text-purple-300">Ready to create</AlertTitle>
+                      <AlertDescription className="text-gray-300">
+                        Fill in the model details above, then click "Create AR Model" to generate and save your AR model.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -360,7 +376,7 @@ export default function CreateARModelPage() {
                     type="submit"
                     onClick={form.handleSubmit(onSubmit)}
                     disabled={isGenerating || !form.watch("name") || !form.watch("category")}
-                    className="w-full"
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/25"
                   >
                     {isGenerating && (
                       <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
@@ -375,17 +391,19 @@ export default function CreateARModelPage() {
 
           {/* Generation Status */}
           {generationStatus !== "idle" && (
-            <Card>
-              <CardHeader>
-                <CardTitle>AI Image Generation</CardTitle>
+            <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+              <CardHeader className="border-b border-purple-500/10">
+                <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  AI Image Generation
+                </CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 {generationStatus === "processing" && (
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                    <div className="h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                    <div className="h-16 w-16 rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
                     <div className="text-center">
-                      <h3 className="text-lg font-medium">Generating AR-Ready Image</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-lg font-medium text-white">Generating AR-Ready Image</h3>
+                      <p className="text-sm text-gray-300">
                         ChatGPT is creating a perfect image for AR try-on...
                       </p>
                     </div>
@@ -394,14 +412,14 @@ export default function CreateARModelPage() {
 
                 {generationStatus === "complete" && generatedImage && (
                   <div className="space-y-4">
-                    <Alert>
-                      <CheckCircle2 className="h-4 w-4" />
-                      <AlertTitle>Generation Complete!</AlertTitle>
-                      <AlertDescription>
+                    <Alert className="bg-green-900/20 border-green-500/30">
+                      <CheckCircle2 className="h-4 w-4 text-green-400" />
+                      <AlertTitle className="text-green-300">Generation Complete!</AlertTitle>
+                      <AlertDescription className="text-gray-300">
                         Your AR-ready image has been generated with transparent background and perfect optimization.
                       </AlertDescription>
                     </Alert>
-                    <div className="aspect-square relative overflow-hidden rounded-lg border bg-checkered">
+                    <div className="aspect-square relative overflow-hidden rounded-xl border border-purple-500/20 bg-checkered">
                       <Image
                         src={generatedImage}
                         alt="Generated AR-ready model"
@@ -412,7 +430,7 @@ export default function CreateARModelPage() {
                     <Button
                       variant="outline"
                       onClick={generateOptimizedImage}
-                      className="w-full"
+                      className="w-full border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
                       disabled={isGenerating}
                     >
                       <Wand2 className="mr-2 h-4 w-4" />
@@ -423,14 +441,20 @@ export default function CreateARModelPage() {
 
                 {generationStatus === "error" && (
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
-                    <AlertCircle className="h-16 w-16 text-destructive" />
+                    <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-pink-600 rounded-full flex items-center justify-center">
+                      <AlertCircle className="h-8 w-8 text-white" />
+                    </div>
                     <div className="text-center">
-                      <h3 className="text-lg font-medium">Generation Failed</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-lg font-medium text-white">Generation Failed</h3>
+                      <p className="text-sm text-gray-300">
                         There was an error generating your AR-ready image. Please try again.
                       </p>
                     </div>
-                    <Button variant="outline" onClick={() => setGenerationStatus("idle")}>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => setGenerationStatus("idle")}
+                      className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                    >
                       Try Again
                     </Button>
                   </div>

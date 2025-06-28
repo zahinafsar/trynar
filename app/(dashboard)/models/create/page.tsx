@@ -110,24 +110,27 @@ export default function CreateModelPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Create 3D Model</h2>
-        <p className="text-muted-foreground">
-          Generate a new 3D model from a product URL
+    <div className="space-y-8">
+      {/* Header Section with Gradient Text */}
+      <div className="space-y-4">
+        <h2 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Create 3D Model
+        </h2>
+        <p className="text-lg text-gray-300 max-w-2xl">
+          Generate a new 3D model from a product URL using advanced AI technology.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-8 md:grid-cols-2">
         <div>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Card>
+              <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
                 <CardContent className="pt-6">
-                  <Alert className="mb-6">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Token Required</AlertTitle>
-                    <AlertDescription>
+                  <Alert className="mb-6 bg-purple-900/20 border-purple-500/30">
+                    <AlertCircle className="h-4 w-4 text-purple-400" />
+                    <AlertTitle className="text-purple-300">Token Required</AlertTitle>
+                    <AlertDescription className="text-gray-300">
                       Creating a {selectedQuality} quality 3D model will use{" "}
                       {tokenCost} token{tokenCost !== 1 ? "s" : ""} from your
                       account.
@@ -147,15 +150,16 @@ export default function CreateModelPage() {
                     name="productUrl"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Product URL</FormLabel>
+                        <FormLabel className="text-gray-300">Product URL</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="https://example.com/product"
                             {...field}
                             disabled={isGenerating}
+                            className="bg-slate-800/50 border-purple-500/30 text-white placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <FormDescription>
+                        <FormDescription className="text-gray-400">
                           Enter the URL of the product you want to create a 3D
                           model for.
                         </FormDescription>
@@ -169,15 +173,16 @@ export default function CreateModelPage() {
                     name="modelName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Model Name</FormLabel>
+                        <FormLabel className="text-gray-300">Model Name</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="My Product 3D Model"
                             {...field}
                             disabled={isGenerating}
+                            className="bg-slate-800/50 border-purple-500/30 text-white placeholder:text-gray-400"
                           />
                         </FormControl>
-                        <FormDescription>
+                        <FormDescription className="text-gray-400">
                           Enter a name for your 3D model.
                         </FormDescription>
                         <FormMessage />
@@ -190,18 +195,18 @@ export default function CreateModelPage() {
                     name="quality"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Quality</FormLabel>
+                        <FormLabel className="text-gray-300">Quality</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                           disabled={isGenerating}
                         >
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="bg-slate-800/50 border-purple-500/30 text-white">
                               <SelectValue placeholder="Select quality" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="bg-slate-900 border-purple-500/20">
                             <SelectItem value="standard">
                               Standard (1 token)
                             </SelectItem>
@@ -213,7 +218,7 @@ export default function CreateModelPage() {
                             </SelectItem>
                           </SelectContent>
                         </Select>
-                        <FormDescription>
+                        <FormDescription className="text-gray-400">
                           Higher quality models require more tokens.
                         </FormDescription>
                         <FormMessage />
@@ -225,7 +230,7 @@ export default function CreateModelPage() {
 
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/25"
                 disabled={isGenerating || tokensLoading || balance < tokenCost}
               >
                 {isGenerating && (
@@ -239,16 +244,18 @@ export default function CreateModelPage() {
         </div>
 
         <div className="flex flex-col space-y-6">
-          <Card className="flex-1">
+          <Card className="flex-1 bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
             <CardContent className="pt-6">
               <div className="flex flex-col items-center justify-center h-full space-y-4">
                 {generationStatus === "idle" && (
                   <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
-                    <Cube className="h-16 w-16 text-muted-foreground" />
+                    <div className="w-16 h-16 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                      <Cube className="h-8 w-8 text-white" />
+                    </div>
                     <div>
-                      <h3 className="text-lg font-medium">Ready to Generate</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Fill in the form and click &quot;Generate 3D Model&quot; to start.
+                      <h3 className="text-lg font-medium text-white">Ready to Generate</h3>
+                      <p className="text-sm text-gray-300">
+                        Fill in the form and click "Generate 3D Model" to start.
                       </p>
                     </div>
                   </div>
@@ -256,12 +263,12 @@ export default function CreateModelPage() {
 
                 {generationStatus === "processing" && (
                   <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
-                    <div className="h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+                    <div className="h-16 w-16 rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
                     <div>
-                      <h3 className="text-lg font-medium">
+                      <h3 className="text-lg font-medium text-white">
                         Generating 3D Model
                       </h3>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-sm text-gray-300">
                         This may take a few minutes. Please wait...
                       </p>
                     </div>
@@ -270,10 +277,12 @@ export default function CreateModelPage() {
 
                 {generationStatus === "complete" && (
                   <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
-                    <CheckCircle2 className="h-16 w-16 text-green-500" />
+                    <div className="w-16 h-16 bg-gradient-to-r from-green-600 to-emerald-600 rounded-full flex items-center justify-center">
+                      <CheckCircle2 className="h-8 w-8 text-white" />
+                    </div>
                     <div>
-                      <h3 className="text-lg font-medium">3D Model Created!</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-lg font-medium text-white">3D Model Created!</h3>
+                      <p className="text-sm text-gray-300">
                         Your 3D model has been successfully generated.
                       </p>
                     </div>
@@ -282,10 +291,12 @@ export default function CreateModelPage() {
 
                 {generationStatus === "error" && (
                   <div className="flex flex-col items-center justify-center text-center space-y-4 py-12">
-                    <AlertCircle className="h-16 w-16 text-destructive" />
+                    <div className="w-16 h-16 bg-gradient-to-r from-red-600 to-pink-600 rounded-full flex items-center justify-center">
+                      <AlertCircle className="h-8 w-8 text-white" />
+                    </div>
                     <div>
-                      <h3 className="text-lg font-medium">Generation Failed</h3>
-                      <p className="text-sm text-muted-foreground">
+                      <h3 className="text-lg font-medium text-white">Generation Failed</h3>
+                      <p className="text-sm text-gray-300">
                         There was an error creating your 3D model.
                       </p>
                     </div>

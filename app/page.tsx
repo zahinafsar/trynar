@@ -1,146 +1,61 @@
 "use client";
 
-import { useRef } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Environment, Float, PresentationControls } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
-import { Group } from "three";
 import dynamic from "next/dynamic";
 import { useAuth } from "@/hooks/auth";
+import { Camera, Sparkles, Zap, ArrowRight, Star } from "lucide-react";
+import Image from "next/image";
+import { Canvas } from "@react-three/fiber";
+import { Environment, Float, PresentationControls } from "@react-three/drei";
+import { AnimatedBoxScene, GalaxyEffect } from "@/components/3d-effects";
 
 const VirtualTryOn = dynamic(
-  () => import("@/components/virtual-try-on").then((mod) => mod.VirtualTryOn),
+  () => import("@/components/try-on").then((mod) => mod.VirtualTryOn),
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-[400px] flex items-center justify-center bg-muted/30">
+      <div className="w-full h-[400px] flex items-center justify-center bg-gradient-to-br from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/20">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-          <p className="text-lg font-medium">Loading virtual try-on...</p>
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+            <div
+              className="absolute inset-0 w-16 h-16 border-4 border-pink-500 border-b-transparent rounded-full animate-spin"
+              style={{ animationDelay: "-0.5s" }}
+            ></div>
+          </div>
+          <p className="text-lg font-medium bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Loading virtual try-on...
+          </p>
         </div>
       </div>
     ),
   }
 );
 
-function Object3D() {
-  const groupRef = useRef<Group | null>(null);
-  const knotRef = useRef<Group | null>(null);
-
-  useFrame((state) => {
-    if (groupRef.current) {
-      groupRef.current.rotation.x =
-        Math.sin(state.clock.elapsedTime * 0.6) * 0.3;
-      groupRef.current.rotation.y =
-        Math.sin(state.clock.elapsedTime * 0.4) * 0.3;
-    }
-    if (knotRef.current) {
-      // Simpler, more subtle movement
-      knotRef.current.rotation.y =
-        Math.sin(state.clock.elapsedTime * 0.2) * 0.3;
-    }
-  });
-
-  // Bar dimensions
-  const barLength = 2.4;
-  const barThickness = 0.3;
-  // Three distinct purple shades for contrast
-  const colorX = "#9333EA"; // Rich purple
-  const colorY = "#A855F7"; // Medium purple
-  const colorZ = "#C084FC"; // Light purple
-
-  return (
-    <group ref={groupRef}>
-      {/* Simplified torus knot */}
-      <group ref={knotRef} position={[0, 0, 0]}>
-        <mesh>
-          <torusKnotGeometry args={[0.4, 0.15, 64, 16, 2, 3]} />
-          <meshPhysicalMaterial
-            color="#A855F7"
-            emissive="#9333EA"
-            emissiveIntensity={0.3}
-            metalness={0.6}
-            roughness={0.3}
-            clearcoat={0.5}
-            clearcoatRoughness={0.3}
-            iridescence={0.8}
-            iridescenceIOR={1.5}
-            iridescenceThicknessRange={[100, 400]}
-          />
-        </mesh>
-      </group>
-      {/* Y axis (vertical bars) */}
-      <mesh position={[-1, 0, 1]}>
-        <boxGeometry args={[barThickness, barLength, barThickness]} />
-        <meshStandardMaterial color={colorY} />
-      </mesh>
-      <mesh position={[1, 0, 1]}>
-        <boxGeometry args={[barThickness, barLength, barThickness]} />
-        <meshStandardMaterial color={colorY} />
-      </mesh>
-      <mesh position={[-1, 0, -1]}>
-        <boxGeometry args={[barThickness, barLength, barThickness]} />
-        <meshStandardMaterial color={colorY} />
-      </mesh>
-      <mesh position={[1, 0, -1]}>
-        <boxGeometry args={[barThickness, barLength, barThickness]} />
-        <meshStandardMaterial color={colorY} />
-      </mesh>
-      {/* X axis (horizontal bars) */}
-      <mesh position={[0, 1, 1]}>
-        <boxGeometry args={[barLength, barThickness, barThickness]} />
-        <meshStandardMaterial color={colorX} />
-      </mesh>
-      <mesh position={[0, -1, 1]}>
-        <boxGeometry args={[barLength, barThickness, barThickness]} />
-        <meshStandardMaterial color={colorX} />
-      </mesh>
-      <mesh position={[0, 1, -1]}>
-        <boxGeometry args={[barLength, barThickness, barThickness]} />
-        <meshStandardMaterial color={colorX} />
-      </mesh>
-      <mesh position={[0, -1, -1]}>
-        <boxGeometry args={[barLength, barThickness, barThickness]} />
-        <meshStandardMaterial color={colorX} />
-      </mesh>
-      {/* Z axis (horizontal bars) */}
-      <mesh position={[1, 1, 0]}>
-        <boxGeometry args={[barThickness, barThickness, barLength]} />
-        <meshStandardMaterial color={colorZ} />
-      </mesh>
-      <mesh position={[-1, 1, 0]}>
-        <boxGeometry args={[barThickness, barThickness, barLength]} />
-        <meshStandardMaterial color={colorZ} />
-      </mesh>
-      <mesh position={[1, -1, 0]}>
-        <boxGeometry args={[barThickness, barThickness, barLength]} />
-        <meshStandardMaterial color={colorZ} />
-      </mesh>
-      <mesh position={[-1, -1, 0]}>
-        <boxGeometry args={[barThickness, barThickness, barLength]} />
-        <meshStandardMaterial color={colorZ} />
-      </mesh>
-    </group>
-  );
-}
-
 export default function Home() {
   const { user } = useAuth();
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden bg-gradient-to-b from-background to-background/80">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 overflow-hidden opacity-50">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-purple-800 via-violet-900 to-slate-900 opacity-70" />
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 [background:radial-gradient(white,_transparent_1px)_0_0_/_8px_8px] opacity-20" />
+    <div className="flex flex-col bg-gradient-to-br from-slate-950 via-purple-950 to-slate-950">
+      {/* Hero Section */}
+      <div className="h-screen flex flex-col items-center justify-center relative overflow-hidden">
+        <GalaxyEffect />
+
+        {/* Simple bolt badge */}
+        <div className="absolute top-8 right-8 z-20">
+          <div className="w-24 h-24 relative bg-gradient-to-br from-purple-600 to-pink-600 rounded-full p-2 shadow-lg">
+            <Image
+              src="/bolt.png"
+              alt="Bolt"
+              width={40}
+              height={40}
+              className="w-full h-full object-contain"
+            />
           </div>
         </div>
 
-        <div className="w-full max-w-5xl text-center space-y-12 relative z-10">
-          {/* 3D Canvas */}
+        <div className="w-full max-w-6xl text-center relative z-10">
           <div className="h-[280px] w-full">
             <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
               <ambientLight intensity={0.5} />
@@ -154,7 +69,7 @@ export default function Home() {
                 snap={{ mass: 4, tension: 400 }}
               >
                 <Float rotationIntensity={0.5}>
-                  <Object3D />
+                  <AnimatedBoxScene />
                 </Float>
               </PresentationControls>
               <Environment preset="city" />
@@ -162,90 +77,164 @@ export default function Home() {
           </div>
 
           {/* Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="space-y-6 !mt-0"
-          >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400">
-              AI powered AR
-            </h1>
-            <p className="text-xl max-w-2xl mx-auto">
-              Generate 3D models for your products and enable AR try-on for your
-              customers.
-            </p>
+          <div>
+            <div className="space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-500/20 rounded-full border border-purple-500/30">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <span className="text-sm font-medium text-purple-300">
+                  Next Generation AR Technology
+                </span>
+              </div>
+
+              <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold">
+                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  AI Powered Virtual Try-On
+                </span>
+              </h1>
+
+              <p className="text-xl sm:text-2xl max-w-3xl mx-auto text-gray-300 leading-relaxed">
+                Transform your products with cutting-edge 3D modeling and
+                immersive AR experiences. Let your customers try before they
+                buy.
+              </p>
+            </div>
+
+            {/* Feature highlights */}
+            <div className="flex flex-wrap justify-center gap-4 max-w-4xl mx-auto mt-6 mb-10">
+              {[
+                { icon: Star, text: "AI-Generated 3D Models" },
+                { icon: Camera, text: "Real-time AR Try-On" },
+                { icon: Zap, text: "Instant Processing" },
+              ].map((feature, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10"
+                >
+                  <feature.icon className="w-4 h-4 text-purple-400" />
+                  <span className="text-sm text-gray-300">{feature.text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* CTA Buttons */}
             {!user ? (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.8 }}
-                className="flex flex-col sm:flex-row gap-4 justify-center"
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg font-semibold rounded-xl"
               >
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-primary/90 hover:bg-primary backdrop-blur-sm"
-                >
-                  <Link href="/login">Login</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="bg-background/50 hover:bg-background/80 backdrop-blur-sm"
-                >
-                  <Link href="/register">Register</Link>
-                </Button>
-              </motion.div>
+                <Link href="/login" className="flex items-center gap-2">
+                  <span>Get Started</span>
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </Button>
             ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4, duration: 0.8 }}
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg font-semibold rounded-xl"
               >
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-primary/90 hover:bg-primary backdrop-blur-sm mb-8"
-                >
-                  <Link href="/dashboard">Go to Dashboard</Link>
-                </Button>
-              </motion.div>
+                <Link href="/dashboard" className="flex items-center gap-2">
+                  <span>Go to Dashboard</span>
+                  <ArrowRight className="w-5 h-5" />
+                </Link>
+              </Button>
             )}
-          </motion.div>
+          </div>
         </div>
       </div>
 
-      {/* Virtual Try-On Demo Section */}
-      <div className="py-16 px-4 bg-muted/30">
-        <div className="max-w-7xl mx-auto">
-          {/* <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center space-y-6 mb-12"
-          >
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Camera className="h-8 w-8 text-primary" />
-              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight">
-                Virtual Try-On Experience
+      {/* Virtual Try-On Section */}
+      <div className="relative py-24 bg-gradient-to-b from-slate-950/50 to-purple-950/30 overflow-hidden">
+        <div className="relative z-10 max-w-7xl mx-auto px-4">
+          {/* Section Title */}
+          <div className="text-center mb-12">
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-4 rounded-full">
+                <Camera className="h-8 w-8 text-white" />
+              </div>
+              <h2 className="text-4xl sm:text-5xl font-bold">
+                <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Virtual Try-On Studio
+                </span>
               </h2>
             </div>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Experience our cutting-edge virtual try-on technology. Test different products using your camera with real-time face detection and AR overlay.
+            <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed">
+              Experience the future of shopping with our advanced virtual try-on
+              technology. Test different accessories using real-time face
+              detection and immersive AR overlay.
             </p>
-          </motion.div> */}
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-          >
-            <VirtualTryOn />
-          </motion.div>
+          {/* Main Content */}
+          <div className="flex flex-col lg:flex-row gap-12 items-start justify-center w-full">
+            <div className="flex-1 min-w-[720px] bg-purple-900/30 rounded-3xl border border-purple-500/20 overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-purple-500/20 bg-gradient-to-r from-slate-900/80 to-purple-900/80">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <Camera className="h-6 w-6 text-purple-400" />
+                  <span className="font-semibold text-lg text-white">
+                    Live Camera Feed
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-sm text-gray-400">REC</span>
+                </div>
+              </div>
+              <div className="relative aspect-video">
+                <VirtualTryOn />
+              </div>
+            </div>
+
+            {/* Feature cards */}
+            <div className="flex-1 space-y-6">
+              {[
+                {
+                  title: "Real-time Detection",
+                  description:
+                    "Advanced AI algorithms detect facial features and accessories in real-time",
+                  icon: Camera,
+                  color: "from-blue-500 to-cyan-500",
+                },
+                {
+                  title: "3D Model Generation",
+                  description:
+                    "Create high-quality 3D models from simple product images",
+                  icon: Star,
+                  color: "from-purple-500 to-pink-500",
+                },
+                {
+                  title: "Instant Try-On",
+                  description:
+                    "See how products look on you instantly with AR technology",
+                  icon: Zap,
+                  color: "from-orange-500 to-red-500",
+                },
+              ].map((feature, index) => (
+                <div
+                  key={index}
+                  className="p-6 bg-gradient-to-br from-slate-900/50 to-purple-900/30 rounded-2xl border border-purple-500/20 hover:border-purple-500/40 transition-all duration-300"
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className={`p-3 rounded-xl bg-gradient-to-r ${feature.color}`}
+                    >
+                      <feature.icon className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        {feature.title}
+                      </h3>
+                      <p className="text-gray-300 leading-relaxed">
+                        {feature.description}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

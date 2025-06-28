@@ -24,21 +24,21 @@ const navItems: NavItem[] = [
     href: "/products",
     icon: <Package className="h-5 w-5" />,
   },
-  {
-    title: "3D Models",
-    href: "/models",
-    icon: <Cube className="h-5 w-5" />,
-  },
+  // {
+  //   title: "3D Models",
+  //   href: "/models",
+  //   icon: <Cube className="h-5 w-5" />,
+  // },
   {
     title: "Tokens",
     href: "/tokens",
     icon: <Coins className="h-5 w-5" />,
   },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: <Settings className="h-5 w-5" />,
-  },
+  // {
+  //   title: "Settings",
+  //   href: "/settings",
+  //   icon: <Settings className="h-5 w-5" />,
+  // },
 ];
 
 export function MainNav() {
