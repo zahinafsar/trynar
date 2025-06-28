@@ -29,26 +29,28 @@ export function TokenHistory() {
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Token History</CardTitle>
-          <CardDescription>Recent token purchases and usage</CardDescription>
+      <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+        <CardHeader className="border-b border-purple-500/10">
+          <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Token History
+          </CardTitle>
+          <CardDescription className="text-gray-300">Recent token purchases and usage</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-6">
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="flex items-center justify-between space-x-4 rounded-lg border p-3"
+                className="flex items-center justify-between space-x-4 rounded-xl border border-purple-500/20 p-4 bg-slate-800/30"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                  <div className="h-10 w-10 rounded-full bg-slate-700 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 w-32 bg-muted rounded animate-pulse" />
-                    <div className="h-3 w-24 bg-muted rounded animate-pulse" />
+                    <div className="h-4 w-32 bg-slate-700 rounded animate-pulse" />
+                    <div className="h-3 w-24 bg-slate-700 rounded animate-pulse" />
                   </div>
                 </div>
-                <div className="h-4 w-16 bg-muted rounded animate-pulse" />
+                <div className="h-4 w-16 bg-slate-700 rounded animate-pulse" />
               </div>
             ))}
           </div>
@@ -58,15 +60,17 @@ export function TokenHistory() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Token History</CardTitle>
-        <CardDescription>Recent token purchases and usage</CardDescription>
+    <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+      <CardHeader className="border-b border-purple-500/10">
+        <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Token History
+        </CardTitle>
+        <CardDescription className="text-gray-300">Recent token purchases and usage</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-6">
         <div className="space-y-4">
           {tokens.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+            <div className="text-center py-8 text-gray-400">
               No token transactions yet
             </div>
           ) : (
@@ -77,25 +81,25 @@ export function TokenHistory() {
               return (
                 <div
                   key={transaction.id}
-                  className="flex items-center justify-between space-x-4 rounded-lg border p-3"
+                  className="flex items-center justify-between space-x-4 rounded-xl border border-purple-500/20 p-4 bg-gradient-to-r from-slate-800/50 to-purple-900/20 hover:border-purple-500/40 transition-all duration-300"
                 >
                   <div className="flex items-center space-x-4">
                     <div
                       className={`flex h-10 w-10 items-center justify-center rounded-full ${
                         type === "purchase"
-                          ? "bg-green-500/10"
-                          : "bg-blue-500/10"
+                          ? "bg-green-500/20"
+                          : "bg-blue-500/20"
                       }`}
                     >
                       {type === "purchase" ? (
-                        <CreditCard className={`h-5 w-5 text-green-500`} />
+                        <CreditCard className={`h-5 w-5 text-green-400`} />
                       ) : (
-                        <Cube className={`h-5 w-5 text-blue-500`} />
+                        <Cube className={`h-5 w-5 text-blue-400`} />
                       )}
                     </div>
                     <div>
-                      <div className="font-medium">{description}</div>
-                      <div className="text-xs text-muted-foreground">
+                      <div className="font-medium text-white">{description}</div>
+                      <div className="text-xs text-gray-400">
                         {formatDistanceToNow(new Date(transaction.created_at), {
                           addSuffix: true,
                         })}
@@ -106,8 +110,8 @@ export function TokenHistory() {
                     <div
                       className={`flex items-center ${
                         transaction.amount > 0
-                          ? "text-green-500"
-                          : "text-blue-500"
+                          ? "text-green-400"
+                          : "text-blue-400"
                       }`}
                     >
                       {transaction.amount > 0 ? (

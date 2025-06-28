@@ -109,16 +109,16 @@ export function ProductList() {
   });
 
   return (
-    <div className="rounded-md border bg-card">
+    <div className="rounded-xl border border-purple-500/20 bg-slate-900/50 backdrop-blur-xl shadow-xl shadow-black/10">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted/50">
-            <TableHead className="w-[80px]">Image</TableHead>
+          <TableRow className="bg-slate-800/50 border-purple-500/20 hover:bg-slate-800/70">
+            <TableHead className="w-[80px] text-gray-300">Image</TableHead>
             <TableHead>
               <Button
                 variant="ghost"
                 onClick={() => handleSort("name")}
-                className="px-0 font-medium"
+                className="px-0 font-medium text-gray-300 hover:text-white hover:bg-transparent"
               >
                 Name
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -128,7 +128,7 @@ export function ProductList() {
               <Button
                 variant="ghost"
                 onClick={() => handleSort("category")}
-                className="px-0 font-medium"
+                className="px-0 font-medium text-gray-300 hover:text-white hover:bg-transparent"
               >
                 Category
                 <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -138,21 +138,21 @@ export function ProductList() {
               <Button
                 variant="ghost"
                 onClick={() => handleSort("price")}
-                className="px-0 font-medium"
+                className="px-0 font-medium text-gray-300 hover:text-white hover:bg-transparent"
               >
                 Price
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
-            <TableHead>3D Model</TableHead>
+            <TableHead className="text-gray-300">3D Model</TableHead>
             <TableHead className="w-[100px]"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedProducts.map((product) => (
-            <TableRow key={product.id} className="bg-card hover:bg-muted/50">
+            <TableRow key={product.id} className="border-purple-500/20 hover:bg-slate-800/30">
               <TableCell>
-                <div className="relative h-10 w-10 overflow-hidden rounded-md">
+                <div className="relative h-10 w-10 overflow-hidden rounded-md border border-purple-500/20">
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -161,20 +161,24 @@ export function ProductList() {
                   />
                 </div>
               </TableCell>
-              <TableCell className="font-medium">
-                <Link href={`/products/${product.id}`} className="hover:underline">
+              <TableCell className="font-medium text-white">
+                <Link href={`/products/${product.id}`} className="hover:text-purple-400 transition-colors">
                   {product.name}
                 </Link>
               </TableCell>
-              <TableCell>{product.category}</TableCell>
-              <TableCell>${product.price.toFixed(2)}</TableCell>
+              <TableCell className="text-gray-300">{product.category}</TableCell>
+              <TableCell className="text-gray-300">${product.price.toFixed(2)}</TableCell>
               <TableCell>
                 {product.modelStatus === "available" ? (
-                  <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20">
+                  <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border-0">
                     Available
                   </Badge>
                 ) : (
-                  <Button variant="outline" size="sm" className="h-8">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-8 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                  >
                     <Cube className="mr-2 h-4 w-4" />
                     Create Model
                   </Button>
@@ -183,23 +187,27 @@ export function ProductList() {
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      className="text-gray-400 hover:text-white hover:bg-slate-800/50"
+                    >
                       <MoreHorizontal className="h-4 w-4" />
                       <span className="sr-only">Open menu</span>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>View product</DropdownMenuItem>
-                    <DropdownMenuItem>Edit product</DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="bg-slate-900 border-purple-500/20">
+                    <DropdownMenuLabel className="text-gray-300">Actions</DropdownMenuLabel>
+                    <DropdownMenuSeparator className="bg-purple-500/20" />
+                    <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">View product</DropdownMenuItem>
+                    <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Edit product</DropdownMenuItem>
                     {product.modelStatus === "available" ? (
-                      <DropdownMenuItem>View 3D model</DropdownMenuItem>
+                      <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">View 3D model</DropdownMenuItem>
                     ) : (
-                      <DropdownMenuItem>Create 3D model</DropdownMenuItem>
+                      <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Create 3D model</DropdownMenuItem>
                     )}
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuSeparator className="bg-purple-500/20" />
+                    <DropdownMenuItem className="text-red-400 hover:bg-red-900/20 hover:text-red-300">
                       Delete product
                     </DropdownMenuItem>
                   </DropdownMenuContent>
