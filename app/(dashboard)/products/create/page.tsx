@@ -5,7 +5,14 @@ import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Upload, Image as ImageIcon, Wand2, AlertCircle, CheckCircle2, X } from "lucide-react";
+import {
+  Upload,
+  Image as ImageIcon,
+  Wand2,
+  AlertCircle,
+  CheckCircle2,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
@@ -30,9 +37,14 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { StorageService } from "@/lib/storage";
+import { ModelsService } from "@/lib/models";
+import { supabase } from "@/lib/supabase";
 
 const formSchema = z.object({
-  name: z.string().min(3, { message: "Model name must be at least 3 characters." }),
+  name: z
+    .string()
+    .min(3, { message: "Product name must be at least 3 characters." }),
   category: z.string().min(1, { message: "Please select a category." }),
   instructions: z.string().optional(),
   image: z.any().optional(),
@@ -49,9 +61,11 @@ const categories = [
   { value: "other", label: "Other" },
 ];
 
-export default function CreateARModelPage() {
+export default function CreateProductPage() {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generationStatus, setGenerationStatus] = useState<"idle" | "processing" | "complete" | "error">("idle");
+  const [generationStatus, setGenerationStatus] = useState<
+    "idle" | "processing" | "complete" | "error"
+  >("idle");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
@@ -103,7 +117,7 @@ export default function CreateARModelPage() {
       toast({
         variant: "destructive",
         title: "Missing information",
-        description: "Please fill in the model name and category first.",
+        description: "Please fill in the product name and category first.",
       });
       return;
     }
@@ -120,10 +134,10 @@ export default function CreateARModelPage() {
       });
 
       // Call API to generate optimized image
-      const response = await fetch('/api/generate-image', {
-        method: 'POST',
+      const response = await fetch("/api/generate-image", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           imageData: base64Image,
@@ -134,54 +148,82 @@ export default function CreateARModelPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate optimized image');
+        throw new Error("Failed to generate optimized image");
       }
 
       const result = await response.json();
-      
+
       if (result.success) {
         setGeneratedImage(result.imageUrl);
         setGenerationStatus("complete");
-        
+
         // Save to database immediately after successful generation
         await saveToDatabase(formValues, result.imageUrl);
-        
+
         toast({
-          title: "AR model created successfully",
-          description: "Your AR model has been generated and saved to the database.",
+          title: "Product created successfully",
+          description:
+            "Your product has been generated and saved to the database.",
         });
-        
+
         router.push("/models");
       } else {
-        throw new Error(result.error || 'Failed to generate image');
+        throw new Error(result.error || "Failed to generate image");
       }
     } catch (error) {
       setGenerationStatus("error");
       toast({
         variant: "destructive",
         title: "Creation failed",
-        description: "There was an error creating your AR model. Please try again.",
+        description:
+          "There was an error creating your product. Please try again.",
       });
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const saveToDatabase = async (formValues: z.infer<typeof formSchema>, imageUrl: string) => {
-    // Here you would save the AR model to your database
-    // For now, we'll simulate the process
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // In a real implementation, you would:
-    // 1. Save the model details (name, category, instructions) to your database
-    // 2. Save the generated image URL or upload the image to your storage
-    // 3. Create the relationship between the model and the image
-    console.log('Saving to database:', {
-      name: formValues.name,
-      category: formValues.category,
-      instructions: formValues.instructions,
-      imageUrl: imageUrl
-    });
+  const saveToDatabase = async (
+    formValues: z.infer<typeof formSchema>,
+    optimizedImageUrl: string
+  ) => {
+    try {
+      // Get current user
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error("User not authenticated");
+      }
+
+      // Upload the original image to Supabase storage
+      const originalImagePath = StorageService.generateFilePath(
+        user.id,
+        selectedImage!.name
+      );
+      const originalImageUrl = await StorageService.uploadFile(
+        selectedImage!,
+        originalImagePath
+      );
+
+      // Create model record in database with the optimized image URL stored in image_url
+      const modelData = {
+        user: user.id,
+        name: formValues.name,
+        category: formValues.category || "",
+        instructions: formValues.instructions || "",
+        product_url: originalImageUrl, // Store original image URL in product_url
+        image_url: optimizedImageUrl, // Store optimized image URL in image_url
+        status: "complete" as const,
+      };
+
+      const result = await ModelsService.createModel(modelData);
+
+      console.log("Model saved successfully:", result);
+    } catch (error: any) {
+      console.error("Error saving to database:", error);
+      throw error;
+    }
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -201,9 +243,9 @@ export default function CreateARModelPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-3xl font-bold tracking-tight">Create AR Model</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Create Product</h2>
         <p className="text-muted-foreground">
-          Add a new AR model with AI-optimized images for virtual try-on
+          Add a new product with AI-optimized images for virtual try-on
         </p>
       </div>
 
@@ -212,11 +254,14 @@ export default function CreateARModelPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>AR Model Details</CardTitle>
+              <CardTitle>Product Details</CardTitle>
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-6"
+                >
                   <FormField
                     control={form.control}
                     name="name"
@@ -224,10 +269,14 @@ export default function CreateARModelPage() {
                       <FormItem>
                         <FormLabel>Model Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="Blue Aviator Sunglasses" {...field} />
+                          <Input
+                            placeholder="Blue Aviator Sunglasses"
+                            {...field}
+                          />
                         </FormControl>
                         <FormDescription>
-                          This will be used in the AI prompt for image generation
+                          This will be used in the AI prompt for image
+                          generation
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -240,7 +289,10 @@ export default function CreateARModelPage() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Category</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a category" />
@@ -248,14 +300,18 @@ export default function CreateARModelPage() {
                           </FormControl>
                           <SelectContent>
                             {categories.map((category) => (
-                              <SelectItem key={category.value} value={category.value}>
+                              <SelectItem
+                                key={category.value}
+                                value={category.value}
+                              >
                                 {category.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Category determines specific optimization for AR try-on
+                          Category determines specific optimization for virtual
+                          try-on
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -267,7 +323,9 @@ export default function CreateARModelPage() {
                     name="instructions"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Enhancement Instructions (Optional)</FormLabel>
+                        <FormLabel>
+                          Enhancement Instructions (Optional)
+                        </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Make the lenses more reflective, adjust colors to be more vibrant, enhance metallic finish..."
@@ -277,7 +335,8 @@ export default function CreateARModelPage() {
                           />
                         </FormControl>
                         <FormDescription>
-                          Specific instructions for AI to enhance your AR model image
+                          Specific instructions for AI to enhance your product
+                          image
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -293,7 +352,7 @@ export default function CreateARModelPage() {
         <div className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>AR Model Image</CardTitle>
+              <CardTitle>Product Image</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {!imagePreview ? (
@@ -303,7 +362,7 @@ export default function CreateARModelPage() {
                     <div className="mt-4">
                       <label htmlFor="image-upload" className="cursor-pointer">
                         <span className="mt-2 block text-sm font-medium text-foreground">
-                          Upload AR model image
+                          Upload product image
                         </span>
                         <span className="mt-1 block text-xs text-muted-foreground">
                           PNG, JPG, GIF up to 10MB
@@ -331,7 +390,7 @@ export default function CreateARModelPage() {
                     <div className="relative overflow-hidden rounded-lg border aspect-square">
                       <Image
                         src={imagePreview}
-                        alt="AR model preview"
+                        alt="Product preview"
                         className="object-contain"
                         fill
                       />
@@ -351,7 +410,8 @@ export default function CreateARModelPage() {
                       <AlertCircle className="h-4 w-4" />
                       <AlertTitle>Ready to create</AlertTitle>
                       <AlertDescription>
-                        Fill in the model details above, then click &quot;Create AR Model&quot; to generate and save your AR model.
+                        Fill in the model details above, then click &quot;Create
+                        AR Model&quot; to generate and save your AR model.
                       </AlertDescription>
                     </Alert>
                   )}
@@ -359,7 +419,11 @@ export default function CreateARModelPage() {
                   <Button
                     type="submit"
                     onClick={form.handleSubmit(onSubmit)}
-                    disabled={isGenerating || !form.watch("name") || !form.watch("category")}
+                    disabled={
+                      isGenerating ||
+                      !form.watch("name") ||
+                      !form.watch("category")
+                    }
                     className="w-full"
                   >
                     {isGenerating && (
@@ -384,7 +448,9 @@ export default function CreateARModelPage() {
                   <div className="flex flex-col items-center justify-center py-8 space-y-4">
                     <div className="h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
                     <div className="text-center">
-                      <h3 className="text-lg font-medium">Generating AR-Ready Image</h3>
+                      <h3 className="text-lg font-medium">
+                        Generating AR-Ready Image
+                      </h3>
                       <p className="text-sm text-muted-foreground">
                         ChatGPT is creating a perfect image for AR try-on...
                       </p>
@@ -398,7 +464,8 @@ export default function CreateARModelPage() {
                       <CheckCircle2 className="h-4 w-4" />
                       <AlertTitle>Generation Complete!</AlertTitle>
                       <AlertDescription>
-                        Your AR-ready image has been generated with transparent background and perfect optimization.
+                        Your product image has been generated with transparent
+                        background and perfect optimization.
                       </AlertDescription>
                     </Alert>
                     <div className="aspect-square relative overflow-hidden rounded-lg border bg-checkered">
@@ -427,10 +494,14 @@ export default function CreateARModelPage() {
                     <div className="text-center">
                       <h3 className="text-lg font-medium">Generation Failed</h3>
                       <p className="text-sm text-muted-foreground">
-                        There was an error generating your AR-ready image. Please try again.
+                        There was an error generating your AR-ready image.
+                        Please try again.
                       </p>
                     </div>
-                    <Button variant="outline" onClick={() => setGenerationStatus("idle")}>
+                    <Button
+                      variant="outline"
+                      onClick={() => setGenerationStatus("idle")}
+                    >
                       Try Again
                     </Button>
                   </div>
