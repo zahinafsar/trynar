@@ -166,7 +166,7 @@ export default function TokensPage() {
         </div>
         <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20">
           <Crown className="mr-1 h-3 w-3" />
-          Active Subscription
+          Active
         </Badge>
       </motion.div>
 

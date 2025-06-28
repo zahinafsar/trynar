@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const data = [
@@ -16,44 +16,44 @@ export function TokenUsage() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-end">
-        <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select period" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="7days">Last 7 days</SelectItem>
-            <SelectItem value="30days">Last 30 days</SelectItem>
-            <SelectItem value="90days">Last 90 days</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
       <div className="h-[200px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-            <XAxis dataKey="name" className="text-xs text-muted-foreground" />
-            <YAxis className="text-xs text-muted-foreground" />
+          <AreaChart data={data}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(147, 51, 234, 0.2)" />
+            <XAxis 
+              dataKey="name" 
+              className="text-xs" 
+              tick={{ fill: 'rgb(156, 163, 175)' }}
+              axisLine={{ stroke: 'rgba(147, 51, 234, 0.2)' }}
+            />
+            <YAxis 
+              className="text-xs" 
+              tick={{ fill: 'rgb(156, 163, 175)' }}
+              axisLine={{ stroke: 'rgba(147, 51, 234, 0.2)' }}
+            />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: "hsl(var(--card))", 
-                border: "1px solid hsl(var(--border))",
-                borderRadius: "var(--radius)",
+                backgroundColor: "rgba(15, 23, 42, 0.9)", 
+                border: "1px solid rgba(147, 51, 234, 0.3)",
+                borderRadius: "8px",
+                color: "white"
               }}
             />
-            <Bar dataKey="tokens" fill="hsl(var(--primary))" radius={4} />
-          </BarChart>
+            <defs>
+              <linearGradient id="tokenGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#9333EA" />
+                <stop offset="100%" stopColor="#EC4899" />
+              </linearGradient>
+            </defs>
+            <Area
+              type="monotone"
+              dataKey="tokens"
+              stroke="url(#tokenGradient)"
+              fill="url(#tokenGradient)"
+              fillOpacity={0.2}
+            />
+          </AreaChart>
         </ResponsiveContainer>
-      </div>
-      <div className="flex justify-between items-center rounded-lg border p-3">
-        <div>
-          <div className="text-sm font-medium">Total tokens used</div>
-          <div className="text-2xl font-bold">25</div>
-        </div>
-        <div>
-          <div className="text-sm font-medium">Available tokens</div>
-          <div className="text-2xl font-bold">25</div>
-        </div>
       </div>
     </div>
   );

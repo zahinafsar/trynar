@@ -5,20 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowUpDown,
-  MoreHorizontal,
-  Cuboid as Cube,
+  Grid,
+  List,
+  Filter,
   Loader2,
+  MoreHorizontal,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { ModelsService } from "@/lib/models";
+import { ModelRow } from "@/types/db";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 import {
   Table,
   TableBody,
@@ -26,12 +25,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ModelsService } from "@/lib/models";
-import { ModelRow } from "@/types/db";
-import { supabase } from "@/lib/supabase";
-import { useToast } from "@/hooks/use-toast";
+} from "../ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@radix-ui/react-dropdown-menu";
 
 export function ProductList() {
   const [products, setProducts] = useState<ModelRow[]>([]);
@@ -91,10 +93,6 @@ export function ProductList() {
       return sortDirection === "asc"
         ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
-    }
-
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
     }
 
     return 0;
@@ -167,7 +165,6 @@ export function ProductList() {
                 <ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             </TableHead>
-            <TableHead>Status</TableHead>
             <TableHead className="w-[100px]"></TableHead>
           </TableRow>
         </TableHeader>
@@ -200,19 +197,6 @@ export function ProductList() {
                 </Link>
               </TableCell>
               <TableCell className="capitalize">{product.category}</TableCell>
-              <TableCell>
-                <Badge
-                  className={
-                    product.status === "complete"
-                      ? "bg-green-500/10 text-green-500 hover:bg-green-500/20"
-                      : product.status === "processing"
-                      ? "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"
-                      : "bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                  }
-                >
-                  {product.status}
-                </Badge>
-              </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

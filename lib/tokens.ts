@@ -45,11 +45,7 @@ export const getTokenBalance = async (
   }
 };
 
-export const addTokens = async (
-  userId: string,
-  amount: number,
-  description?: string
-): Promise<TokenResponse> => {
+export const addTokens = async (amount: number): Promise<TokenResponse> => {
   try {
     const tokenData: TokenInsert = {
       amount: amount,
@@ -74,8 +70,7 @@ export const addTokens = async (
 
 export const consumeTokens = async (
   userId: string,
-  amount: number,
-  description?: string
+  amount: number
 ): Promise<TokenResponse> => {
   try {
     // First check if user has enough tokens

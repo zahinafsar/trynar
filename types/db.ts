@@ -30,6 +30,7 @@ export type ModelInsert = {
   product_url: string;
   image_url?: string;
   category?: string;
+  url?: string;
 };
 
 export type ModelUpdate = {
@@ -37,6 +38,7 @@ export type ModelUpdate = {
   name?: string;
   product_url?: string;
   image_url?: string;
+  url?: string;
   category?: string;
 };
 

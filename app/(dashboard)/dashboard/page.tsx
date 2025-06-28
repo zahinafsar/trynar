@@ -1,87 +1,58 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { RecentModels } from "@/components/dashboard/recent-models";
 import { TokenUsage } from "@/components/dashboard/token-usage";
-import { QuickActions } from "@/components/dashboard/quick-actions";
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
-        <p className="text-muted-foreground">
-          Overview of your 3D models, products, and token usage.
+    <div className="space-y-8">
+      {/* Header Section with Gradient Text */}
+      <div className="space-y-4">
+        <h2 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Dashboard
+        </h2>
+        <p className="text-lg text-gray-300 max-w-2xl">
+          Overview of your 3D models, products, and token usage. Monitor your AR
+          experiences and track performance metrics.
         </p>
       </div>
-      
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-          <TabsTrigger value="reports">Reports</TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview" className="space-y-4">
-          <DashboardStats />
-          
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="lg:col-span-4">
-              <CardHeader>
-                <CardTitle>Recent 3D Models</CardTitle>
-                <CardDescription>
-                  Your most recently created 3D models.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RecentModels />
-              </CardContent>
-            </Card>
-            <Card className="lg:col-span-3">
-              <CardHeader>
-                <CardTitle>Token Usage</CardTitle>
-                <CardDescription>
-                  Your token usage over the past 30 days.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <TokenUsage />
-              </CardContent>
-            </Card>
-          </div>
-          
-          <QuickActions />
-        </TabsContent>
-        <TabsContent value="analytics" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Analytics</CardTitle>
-              <CardDescription>
-                Detailed analytics about your 3D models and AR experiences.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] flex items-center justify-center border rounded-md">
-                <p className="text-muted-foreground">Analytics data will appear here</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="reports" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Reports</CardTitle>
-              <CardDescription>
-                Export and manage reports about your 3D model generation.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[300px] flex items-center justify-center border rounded-md">
-                <p className="text-muted-foreground">Report data will appear here</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+
+      <DashboardStats />
+
+      <div className="flex flex-col gap-8">
+        <Card className="lg:col-span-3 bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+          <CardHeader className="border-b border-purple-500/10">
+            <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Token Usage
+            </CardTitle>
+            <CardDescription className="text-gray-300">
+              Your token consumption over the past 30 days.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <TokenUsage />
+          </CardContent>
+        </Card>
+        <Card className="lg:col-span-4 bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+          <CardHeader className="border-b border-purple-500/10">
+            <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              Recent 3D Models
+            </CardTitle>
+            <CardDescription className="text-gray-300">
+              Your most recently created 3D models and their status.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <RecentModels />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
