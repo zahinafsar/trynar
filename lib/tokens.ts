@@ -54,7 +54,7 @@ export const addTokens = async (amount: number): Promise<TokenResponse> => {
     // Note: You need to add the user field to TokenInsert type and handle it in RLS policies
     const { data, error } = await supabase
       .from("tokens")
-      .insert([{ ...tokenData, user: userId }])
+      .insert([{ ...tokenData }])
       .select()
       .single();
 
