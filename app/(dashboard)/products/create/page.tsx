@@ -12,8 +12,17 @@ import {
   CheckCircle2,
   X,
   Save,
+  ArrowLeft,
+  Sparkles,
+  Zap,
+  Camera,
+  FileImage,
+  Loader2,
+  AlertCircle,
+  Info,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -35,6 +44,8 @@ import {
 } from "@/components/ui/select";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { StorageService } from "@/lib/storage";
 import { ModelsService } from "@/lib/models";
@@ -67,6 +78,7 @@ export default function CreateProductPage() {
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(
     null
   );
+  const [currentStep, setCurrentStep] = useState<'upload' | 'generate' | 'details' | 'complete'>('upload');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -91,6 +103,7 @@ export default function CreateProductPage() {
       };
       reader.readAsDataURL(pngFile);
       setGeneratedImageUrl(null);
+      setCurrentStep('generate');
     }
   };
 
@@ -98,6 +111,7 @@ export default function CreateProductPage() {
     setSelectedImage(null);
     setImagePreview(null);
     setGeneratedImageUrl(null);
+    setCurrentStep('upload');
   };
 
   const generateImage = async () => {
@@ -131,6 +145,7 @@ export default function CreateProductPage() {
         setGeneratedImageUrl(
           `data:image/png;base64,${result.data[0].b64_json}`
         );
+        setCurrentStep('details');
         toast({
           title: "Image generated successfully",
           description: "Your optimized image is ready.",
@@ -186,20 +201,22 @@ export default function CreateProductPage() {
         user: user.id,
         name: formValues.name,
         category: formValues.category,
-        instructions: "",
         product_url: originalImageUrl,
         image_url: generatedImageUrl,
-        status: "complete" as const,
       };
 
       await ModelsService.createModel(modelData);
 
+      setCurrentStep('complete');
       toast({
         title: "Product saved successfully",
         description: "Your product has been saved to the database.",
       });
 
-      router.push("/products");
+      // Redirect after a short delay
+      setTimeout(() => {
+        router.push("/products");
+      }, 2000);
     } catch (error: any) {
       console.error("Error saving to database:", error);
       toast({
@@ -217,44 +234,164 @@ export default function CreateProductPage() {
     await saveToDatabase(values);
   }
 
+  const getStepStatus = (step: string) => {
+    const steps = ['upload', 'generate', 'details', 'complete'];
+    const currentIndex = steps.indexOf(currentStep);
+    const stepIndex = steps.indexOf(step);
+    
+    if (stepIndex < currentIndex) return 'completed';
+    if (stepIndex === currentIndex) return 'current';
+    return 'upcoming';
+  };
+
+  if (currentStep === 'complete') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="max-w-md w-full space-y-8 text-center">
+          <div className="space-y-6">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center">
+              <CheckCircle2 className="h-10 w-10 text-white" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
+                Product Created!
+              </h1>
+              <p className="text-gray-300 text-lg">
+                Your AR-ready product has been successfully created and saved.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Button 
+                asChild
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+              >
+                <Link href="/products">View All Products</Link>
+              </Button>
+              <Button 
+                variant="outline" 
+                asChild
+                className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20"
+              >
+                <Link href="/products/create">Create Another</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
-      {/* Header Section */}
-      <div className="space-y-4">
-        <h2 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-          Create AR Model
-        </h2>
-        <p className="text-lg text-gray-300 max-w-2xl">
-          Upload an image, generate an optimized version, and save your AR
-          model.
-        </p>
+      {/* Header */}
+      <div className="flex items-center gap-6">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => router.back()}
+          className="text-gray-300 hover:text-white hover:bg-slate-800/50"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div className="space-y-2">
+          <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Create AR Product
+          </h1>
+          <p className="text-lg text-gray-300">
+            Transform your product images into immersive AR experiences
+          </p>
+        </div>
       </div>
 
-      {/* Two Flex Boxes for Image Processing */}
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* Left Box - Image Input */}
-        <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
-          <CardHeader className="border-b border-purple-500/10">
-            <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Upload Image
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {!imagePreview ? (
-              <div className="border-2 border-dashed border-purple-500/30 rounded-xl p-8 bg-gradient-to-br from-purple-900/10 to-pink-900/10">
-                <div className="text-center">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center mb-4">
-                    <ImageIcon className="h-8 w-8 text-white" />
+      {/* Progress Steps */}
+      <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between">
+            {[
+              { key: 'upload', label: 'Upload Image', icon: Upload },
+              { key: 'generate', label: 'AI Processing', icon: Wand2 },
+              { key: 'details', label: 'Product Details', icon: FileImage },
+              { key: 'complete', label: 'Complete', icon: CheckCircle2 },
+            ].map((step, index) => {
+              const status = getStepStatus(step.key);
+              return (
+                <div key={step.key} className="flex items-center">
+                  <div className="flex flex-col items-center">
+                    <div className={`
+                      w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300
+                      ${status === 'completed' ? 'bg-green-500 text-white' : 
+                        status === 'current' ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white' : 
+                        'bg-slate-700 text-gray-400'}
+                    `}>
+                      <step.icon className="h-5 w-5" />
+                    </div>
+                    <span className={`
+                      mt-2 text-sm font-medium
+                      ${status === 'current' ? 'text-white' : 'text-gray-400'}
+                    `}>
+                      {step.label}
+                    </span>
                   </div>
-                  <div className="mt-4">
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <span className="mt-2 block text-sm font-medium text-white">
-                        Upload AR model image
-                      </span>
-                      <span className="mt-1 block text-xs text-gray-400">
-                        PNG, JPG, GIF up to 10MB
-                      </span>
-                    </label>
+                  {index < 3 && (
+                    <div className={`
+                      flex-1 h-0.5 mx-4 transition-all duration-300
+                      ${status === 'completed' ? 'bg-green-500' : 'bg-slate-700'}
+                    `} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Main Content */}
+      <div className="grid gap-8 lg:grid-cols-2">
+        {/* Left Column - Image Processing */}
+        <div className="space-y-6">
+          {/* Upload Section */}
+          <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+            <CardHeader className="border-b border-purple-500/10">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <Camera className="h-5 w-5 text-purple-400" />
+                Original Image
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {!imagePreview ? (
+                <div className="border-2 border-dashed border-purple-500/30 rounded-xl p-8 bg-gradient-to-br from-purple-900/10 to-pink-900/10 hover:border-purple-500/50 transition-all duration-300">
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-gradient-to-r from-purple-600 to-pink-600 rounded-full flex items-center justify-center">
+                      <ImageIcon className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white mb-2">
+                        Upload Product Image
+                      </h3>
+                      <p className="text-sm text-gray-400 mb-4">
+                        Choose a high-quality image of your product for AR optimization
+                      </p>
+                      <div className="flex flex-wrap gap-2 justify-center mb-4">
+                        <Badge variant="outline" className="border-purple-500/30 text-purple-300">
+                          PNG, JPG, GIF
+                        </Badge>
+                        <Badge variant="outline" className="border-purple-500/30 text-purple-300">
+                          Max 4MB
+                        </Badge>
+                        <Badge variant="outline" className="border-purple-500/30 text-purple-300">
+                          1024x1024 recommended
+                        </Badge>
+                      </div>
+                    </div>
+                    <Button
+                      className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+                      asChild
+                    >
+                      <label htmlFor="image-upload" className="cursor-pointer">
+                        <Upload className="mr-2 h-4 w-4" />
+                        Choose Image
+                      </label>
+                    </Button>
                     <input
                       id="image-upload"
                       type="file"
@@ -263,207 +400,223 @@ export default function CreateProductPage() {
                       onChange={handleImageUpload}
                     />
                   </div>
-                  <Button
-                    className="mt-4 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
-                    asChild
-                  >
-                    <label htmlFor="image-upload" className="cursor-pointer">
-                      <Upload className="mr-2 h-4 w-4" />
-                      Choose Image
-                    </label>
-                  </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="relative">
-                  <div className="relative overflow-hidden rounded-xl border border-purple-500/20 aspect-square">
+              ) : (
+                <div className="space-y-4">
+                  <div className="relative group">
+                    <div className="relative overflow-hidden rounded-xl border border-purple-500/20 aspect-square bg-checkered">
+                      <Image
+                        src={imagePreview}
+                        alt="Product preview"
+                        className="object-contain"
+                        fill
+                      />
+                    </div>
+                    <Button
+                      variant="destructive"
+                      size="icon"
+                      className="absolute top-2 right-2 bg-red-600 hover:bg-red-700 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={removeImage}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {currentStep === 'generate' && (
+                    <Button
+                      onClick={generateImage}
+                      disabled={isGenerating}
+                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/25"
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Processing with AI...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="mr-2 h-4 w-4" />
+                          Generate AR-Ready Image
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* AI Processing Info */}
+          {currentStep === 'generate' && imagePreview && (
+            <Alert className="border-blue-500/20 bg-blue-900/20">
+              <Info className="h-4 w-4 text-blue-400" />
+              <AlertTitle className="text-blue-300">AI Processing</AlertTitle>
+              <AlertDescription className="text-blue-200">
+                Our AI will optimize your image for AR by removing backgrounds, enhancing clarity, and preparing it for virtual try-on experiences.
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        {/* Right Column - Generated Image & Form */}
+        <div className="space-y-6">
+          {/* Generated Image */}
+          <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+            <CardHeader className="border-b border-purple-500/10">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <Sparkles className="h-5 w-5 text-purple-400" />
+                AI-Enhanced Image
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {!generatedImageUrl ? (
+                <div className="border-2 border-dashed border-purple-500/30 rounded-xl p-8 bg-gradient-to-br from-purple-900/10 to-pink-900/10">
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 mx-auto bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center">
+                      <Zap className="h-8 w-8 text-gray-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-300 mb-2">
+                        AI-Enhanced Image
+                      </h3>
+                      <p className="text-sm text-gray-400">
+                        Your optimized AR-ready image will appear here after processing
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="aspect-square relative overflow-hidden rounded-xl border border-purple-500/20 bg-checkered">
                     <Image
-                      src={imagePreview}
-                      alt="Product preview"
+                      src={generatedImageUrl}
+                      alt="Generated AR-ready model"
                       className="object-contain"
                       fill
                     />
                   </div>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    className="absolute top-2 right-2 bg-red-600 hover:bg-red-700"
-                    onClick={removeImage}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                <Button
-                  onClick={generateImage}
-                  disabled={isGenerating}
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0 shadow-lg shadow-purple-500/25"
-                >
-                  {isGenerating && (
-                    <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  )}
-                  {isGenerating ? "Generating..." : "Generate"}
-                  <Wand2 className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Right Box - Generated Image Display */}
-        <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
-          <CardHeader className="border-b border-purple-500/10">
-            <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-              Generated Image
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-6">
-            {!generatedImageUrl ? (
-              <div className="border-2 border-dashed border-purple-500/30 rounded-xl p-8 bg-gradient-to-br from-purple-900/10 to-pink-900/10">
-                <div className="text-center">
-                  <div className="w-16 h-16 mx-auto bg-gradient-to-r from-gray-600 to-gray-700 rounded-full flex items-center justify-center mb-4">
-                    <ImageIcon className="h-8 w-8 text-gray-400" />
-                  </div>
-                  <div className="text-center">
-                    <span className="block text-sm font-medium text-gray-300">
-                      Generated image will appear here
-                    </span>
-                    <span className="mt-1 block text-xs text-gray-400">
-                      Click &quot;Generate&quot; to create optimized image
-                    </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={generateImage}
+                      className="flex-1 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                      disabled={isGenerating}
+                    >
+                      <Wand2 className="mr-2 h-4 w-4" />
+                      Regenerate
+                    </Button>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="aspect-square relative overflow-hidden rounded-xl border border-purple-500/20 bg-checkered">
-                  <Image
-                    src={generatedImageUrl}
-                    alt="Generated AR-ready model"
-                    className="object-contain"
-                    fill
-                  />
-                </div>
+              )}
+            </CardContent>
+          </Card>
 
-                <div className="space-y-2">
-                  <Button
-                    variant="outline"
-                    onClick={generateImage}
-                    className="w-full border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
-                    disabled={isGenerating}
-                  >
-                    <Wand2 className="mr-2 h-4 w-4" />
-                    Regenerate
-                  </Button>
-                </div>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+          {/* Product Details Form */}
+          {currentStep === 'details' && (
+            <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+              <CardHeader className="border-b border-purple-500/10">
+                <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Product Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-300">
+                            Product Name
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="e.g., Blue Aviator Sunglasses"
+                              {...field}
+                              className="bg-slate-800/50 border-purple-500/30 text-white placeholder:text-gray-400"
+                            />
+                          </FormControl>
+                          <FormDescription className="text-gray-400">
+                            Choose a descriptive name for your product
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="category"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-gray-300">Category</FormLabel>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="bg-slate-800/50 border-purple-500/30 text-white">
+                                <SelectValue placeholder="Select a category" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="bg-slate-900 border-purple-500/20">
+                              {categories.map((category) => (
+                                <SelectItem
+                                  key={category.value}
+                                  value={category.value}
+                                  disabled={category.disabled}
+                                  className="text-white hover:bg-slate-800"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    {category.label}
+                                    {category.disabled && (
+                                      <Badge variant="outline" className="text-xs">
+                                        Coming Soon
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription className="text-gray-400">
+                            Select the category that best describes your product
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <Separator className="bg-purple-500/20" />
+
+                    <Button
+                      type="submit"
+                      disabled={isSaving}
+                      className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg shadow-green-500/25"
+                    >
+                      {isSaving ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Saving Product...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="mr-2 h-4 w-4" />
+                          Save AR Product
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
-
-      {/* Form Section */}
-      <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
-        <CardHeader className="border-b border-purple-500/10">
-          <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-            Product Details
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-6">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid gap-6 lg:grid-cols-2">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-300">
-                        Product Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Blue Aviator Sunglasses"
-                          {...field}
-                          className="bg-slate-800/50 border-purple-500/30 text-white placeholder:text-gray-400"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-gray-300">Category</FormLabel>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="bg-slate-800/50 border-purple-500/30 text-white">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent className="bg-slate-900 border-purple-500/20">
-                          {categories.map((category) => (
-                            <SelectItem
-                              key={category.value}
-                              value={category.value}
-                              disabled={category.disabled}
-                            >
-                              {category.label}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <Button
-                type="submit"
-                disabled={isSaving || !generatedImageUrl}
-                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white border-0 shadow-lg shadow-green-500/25"
-              >
-                {isSaving && (
-                  <span className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                )}
-                {isSaving ? "Saving..." : "Save Product"}
-                <Save className="ml-2 h-4 w-4" />
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
     </div>
   );
 }
-
-const base64ToBlob = (base64: string, mime: string) => {
-  const byteCharacters = atob(base64.split(",")[1]);
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += 512) {
-    const slice = byteCharacters.slice(offset, offset + 512);
-
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    byteArrays.push(byteArray);
-  }
-
-  return new Blob(byteArrays, { type: mime });
-};
 
 const convertImageToPng = (file: File): Promise<File> => {
   return new Promise((resolve, reject) => {
