@@ -139,8 +139,8 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-16 w-16 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="text-lg font-medium">Loading product...</p>
+          <div className="h-16 w-16 rounded-full border-4 border-purple-500 border-t-transparent animate-spin" />
+          <p className="text-lg font-medium text-white">Loading product...</p>
         </div>
       </div>
     );
@@ -150,51 +150,75 @@ export default function ProductDetailPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold mb-2">Product not found</h1>
-          <p className="text-muted-foreground mb-4">The product you&apos;re looking for doesn&apos;t exist.</p>
-          <Button onClick={() => router.back()}>Go Back</Button>
+          <h1 className="text-2xl font-bold mb-2 text-white">Product not found</h1>
+          <p className="text-gray-300 mb-4">The product you&apos;re looking for doesn&apos;t exist.</p>
+          <Button 
+            onClick={() => router.back()}
+            className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+          >
+            Go Back
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()}>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => router.back()}
+            className="text-gray-300 hover:text-white hover:bg-slate-800/50"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">{product.name}</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="secondary">{product.category}</Badge>
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+              {product.name}
+            </h1>
+            <div className="flex items-center gap-3 mt-2">
+              <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                {product.category}
+              </Badge>
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium">{product.stats.rating}</span>
+                <span className="text-sm font-medium text-gray-300">{product.stats.rating}</span>
               </div>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="icon" onClick={handleShare}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={handleShare}
+            className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+          >
             <Share2 className="h-4 w-4" />
           </Button>
-          <Button variant="outline" size="icon" onClick={handleDownload}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={handleDownload}
+            className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+          >
             <Download className="h-4 w-4" />
           </Button>
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-8 lg:grid-cols-2">
         {/* Image Section */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="space-y-4"
+          className="space-y-6"
         >
-          <Card className="overflow-hidden bg-gradient-to-br from-background via-background to-muted/20">
+          <Card className="overflow-hidden bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
             <CardContent className="p-0">
               <div className="relative aspect-square">
                 <Image
@@ -204,7 +228,7 @@ export default function ProductDetailPage() {
                   fill
                 />
                 <div className="absolute top-4 left-4">
-                  <Badge className="bg-primary/90 backdrop-blur-sm">
+                  <Badge className="bg-slate-900/80 backdrop-blur-sm border border-purple-500/30 text-purple-300">
                     {activeImage === 'original' ? 'Original' : 'AI Enhanced'}
                     {activeImage === 'generated' && <Sparkles className="ml-1 h-3 w-3" />}
                   </Badge>
@@ -214,12 +238,15 @@ export default function ProductDetailPage() {
           </Card>
 
           {/* Image Toggle */}
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               variant={activeImage === 'original' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setActiveImage('original')}
-              className="flex-1"
+              className={activeImage === 'original' 
+                ? "flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0" 
+                : "flex-1 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+              }
             >
               Original Image
             </Button>
@@ -227,7 +254,10 @@ export default function ProductDetailPage() {
               variant={activeImage === 'generated' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setActiveImage('generated')}
-              className="flex-1"
+              className={activeImage === 'generated' 
+                ? "flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0" 
+                : "flex-1 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+              }
             >
               <Sparkles className="mr-2 h-4 w-4" />
               AI Enhanced
@@ -241,31 +271,20 @@ export default function ProductDetailPage() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          {/* Stats and Description */}
-          {/* <Card className="bg-gradient-to-r from-primary/5 to-purple-500/5 border-primary/20">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="text-2xl font-bold text-primary">
-                  AR Experience
-                </div>
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1">
-                    <Eye className="h-4 w-4" />
-                    {product.stats.views}
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <Smartphone className="h-4 w-4" />
-                    {product.stats.tryOns}
-                  </div>
-                </div>
-              </div>
-              
-              <p className="text-muted-foreground mb-6">
+          {/* Description */}
+          <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+            <CardHeader className="border-b border-purple-500/10">
+              <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                Product Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <p className="text-gray-300 mb-6 leading-relaxed">
                 {product.description}
               </p>
 
-              <div className="flex gap-3">
-                <Button asChild className="flex-1">
+              <div className="flex gap-3 mb-6">
+                <Button asChild className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0">
                   <Link href={`/try-on/${product.id}`}>
                     <Smartphone className="mr-2 h-4 w-4" />
                     Try in AR
@@ -274,34 +293,52 @@ export default function ProductDetailPage() {
                 <Button 
                   variant="outline" 
                   onClick={() => setShowEmbedCode(!showEmbedCode)}
+                  className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
                 >
                   <Code className="mr-2 h-4 w-4" />
                   Embed
                 </Button>
               </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-3 rounded-lg bg-gradient-to-r from-blue-900/20 to-cyan-900/20 border border-blue-500/20">
+                  <div className="text-2xl font-bold text-blue-400">{product.stats.views}</div>
+                  <div className="text-xs text-gray-400">Views</div>
+                </div>
+                <div className="text-center p-3 rounded-lg bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-500/20">
+                  <div className="text-2xl font-bold text-green-400">{product.stats.tryOns}</div>
+                  <div className="text-xs text-gray-400">Try-ons</div>
+                </div>
+              </div>
             </CardContent>
-          </Card> */}
+          </Card>
 
           {/* Embed & Share Options */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <LinkIcon className="h-5 w-5 text-primary" />
+          <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+            <CardHeader className="border-b border-purple-500/10">
+              <CardTitle className="flex items-center gap-2 text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                <LinkIcon className="h-5 w-5 text-purple-400" />
                 Share & Embed
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="pt-6 space-y-6">
               {/* AR Link */}
               <div className="space-y-2">
-                <Label htmlFor="ar-link">AR Try-On Link</Label>
+                <Label htmlFor="ar-link" className="text-gray-300">AR Try-On Link</Label>
                 <div className="flex gap-2">
                   <Input
                     id="ar-link"
                     value={getArLink()}
                     readOnly
-                    className="font-mono text-sm"
+                    className="font-mono text-sm bg-slate-800/50 border-purple-500/30 text-white"
                   />
-                  <Button variant="outline" size="icon" onClick={handleCopyArLink}>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={handleCopyArLink}
+                    className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                  >
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>
@@ -309,16 +346,21 @@ export default function ProductDetailPage() {
 
               {/* Embed Code */}
               <div className="space-y-2">
-                <Label htmlFor="embed-code">Embed Code (iframe)</Label>
-                <div className="space-y-2">
+                <Label htmlFor="embed-code" className="text-gray-300">Embed Code (iframe)</Label>
+                <div className="space-y-3">
                   <Textarea
                     id="embed-code"
                     value={getEmbedCode()}
                     readOnly
-                    className="font-mono text-sm resize-none"
+                    className="font-mono text-sm resize-none bg-slate-800/50 border-purple-500/30 text-white"
                     rows={3}
                   />
-                  <Button variant="outline" size="sm" onClick={handleCopyEmbedCode} className="w-full">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleCopyEmbedCode} 
+                    className="w-full border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                  >
                     <Copy className="mr-2 h-4 w-4" />
                     Copy Embed Code
                   </Button>
@@ -326,13 +368,23 @@ export default function ProductDetailPage() {
               </div>
 
               {/* Quick Actions */}
-              <Separator />
-              <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" onClick={handleShare}>
+              <Separator className="bg-purple-500/20" />
+              <div className="grid grid-cols-2 gap-3">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleShare}
+                  className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                >
                   <Share2 className="mr-2 h-4 w-4" />
                   Share Link
                 </Button>
-                <Button variant="outline" size="sm" asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  asChild
+                  className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
+                >
                   <Link href={`/try-on/${product.id}`} target="_blank">
                     <ExternalLink className="mr-2 h-4 w-4" />
                     Open AR
@@ -343,21 +395,21 @@ export default function ProductDetailPage() {
           </Card>
 
           {/* AR Model Info */}
-          <Card className="bg-gradient-to-r from-green-500/5 to-blue-500/5 border-green-500/20">
+          <Card className="bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-500/20 shadow-xl shadow-black/10">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                <Smartphone className="h-5 w-5 text-green-500" />
+              <h3 className="text-lg font-semibold mb-3 flex items-center gap-2 text-white">
+                <Smartphone className="h-5 w-5 text-green-400" />
                 AR Ready
               </h3>
-              <p className="text-sm text-muted-foreground mb-4">
+              <p className="text-sm text-gray-300 mb-4 leading-relaxed">
                 This product has been optimized for augmented reality try-on experiences.
-                Compatible with any device
+                Compatible with any device with camera access.
               </p>
               <div className="flex items-center gap-2 text-sm">
-                <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+                <Badge className="bg-green-500/20 text-green-400 border-green-500/30">
                   ✓ Face Detection
                 </Badge>
-                <Badge variant="outline" className="bg-blue-500/10 text-blue-500 border-blue-500/20">
+                <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
                   ✓ Real-time Tracking
                 </Badge>
               </div>
