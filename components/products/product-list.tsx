@@ -3,33 +3,16 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpDown, MoreHorizontal, Cuboid as Cube } from "lucide-react";
+import { ArrowUpDown, Grid, List, Filter } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 
 interface Product {
   id: string;
   name: string;
   image: string;
-  price: number;
-  modelStatus: "available" | "unavailable";
   category: string;
 }
 
@@ -38,40 +21,30 @@ const products: Product[] = [
     id: "1",
     name: "Blue Sneakers",
     image: "https://images.pexels.com/photos/2529148/pexels-photo-2529148.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    price: 89.99,
-    modelStatus: "available",
     category: "Footwear",
   },
   {
     id: "2",
     name: "Silver Watch",
     image: "https://images.pexels.com/photos/190819/pexels-photo-190819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    price: 129.99,
-    modelStatus: "available",
     category: "Accessories",
   },
   {
     id: "3",
     name: "Black Headphones",
     image: "https://images.pexels.com/photos/577769/pexels-photo-577769.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    price: 99.99,
-    modelStatus: "available",
     category: "Electronics",
   },
   {
     id: "4",
     name: "Green Backpack",
     image: "https://images.pexels.com/photos/1546003/pexels-photo-1546003.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    price: 59.99,
-    modelStatus: "unavailable",
     category: "Bags",
   },
   {
     id: "5",
     name: "Sunglasses",
     image: "https://images.pexels.com/photos/701877/pexels-photo-701877.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-    price: 79.99,
-    modelStatus: "unavailable",
     category: "Accessories",
   },
 ];
@@ -79,6 +52,7 @@ const products: Product[] = [
 export function ProductList() {
   const [sortColumn, setSortColumn] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -101,122 +75,56 @@ export function ProductList() {
         : bValue.localeCompare(aValue);
     }
 
-    if (typeof aValue === "number" && typeof bValue === "number") {
-      return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
-    }
-
     return 0;
   });
 
   return (
-    <div className="rounded-xl border border-purple-500/20 bg-slate-900/50 backdrop-blur-xl shadow-xl shadow-black/10">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-slate-800/50 border-purple-500/20 hover:bg-slate-800/70">
-            <TableHead className="w-[80px] text-gray-300">Image</TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                onClick={() => handleSort("name")}
-                className="px-0 font-medium text-gray-300 hover:text-white hover:bg-transparent"
-              >
-                Name
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                onClick={() => handleSort("category")}
-                className="px-0 font-medium text-gray-300 hover:text-white hover:bg-transparent"
-              >
-                Category
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead>
-              <Button
-                variant="ghost"
-                onClick={() => handleSort("price")}
-                className="px-0 font-medium text-gray-300 hover:text-white hover:bg-transparent"
-              >
-                Price
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="text-gray-300">3D Model</TableHead>
-            <TableHead className="w-[100px]"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {sortedProducts.map((product) => (
-            <TableRow key={product.id} className="border-purple-500/20 hover:bg-slate-800/30">
-              <TableCell>
-                <div className="relative h-10 w-10 overflow-hidden rounded-md border border-purple-500/20">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    className="object-cover"
-                    fill
-                  />
-                </div>
-              </TableCell>
-              <TableCell className="font-medium text-white">
-                <Link href={`/products/${product.id}`} className="hover:text-purple-400 transition-colors">
+    <div className="space-y-6">
+      {/* Product Grid */}
+      <div className={`grid gap-6 ${
+        viewMode === "grid" 
+          ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" 
+          : "grid-cols-1"
+      }`}>
+        {sortedProducts.map((product) => (
+          <Card key={product.id} className="group bg-slate-900/50 border-purple-500/20 hover:bg-slate-800/50 transition-all duration-300 hover:shadow-xl hover:shadow-purple-500/10 hover:border-purple-500/40 overflow-hidden">
+            <CardHeader className="p-0">
+              <div className="relative h-48 w-full overflow-hidden">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                  fill
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              </div>
+            </CardHeader>
+            <CardContent className="p-4">
+              <div className="space-y-3">
+                <h3 className="font-semibold text-white text-lg leading-tight">
                   {product.name}
-                </Link>
-              </TableCell>
-              <TableCell className="text-gray-300">{product.category}</TableCell>
-              <TableCell className="text-gray-300">${product.price.toFixed(2)}</TableCell>
-              <TableCell>
-                {product.modelStatus === "available" ? (
-                  <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border-0">
-                    Available
+                </h3>
+                <div className="flex items-center justify-between">
+                  <Badge variant="outline" className="bg-slate-800/50 border-purple-500/30 text-purple-300 text-xs font-medium">
+                    {product.category}
                   </Badge>
-                ) : (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="h-8 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
-                  >
-                    <Cube className="mr-2 h-4 w-4" />
-                    Create Model
-                  </Button>
-                )}
-              </TableCell>
-              <TableCell>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="text-gray-400 hover:text-white hover:bg-slate-800/50"
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="bg-slate-900 border-purple-500/20">
-                    <DropdownMenuLabel className="text-gray-300">Actions</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-purple-500/20" />
-                    <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">View product</DropdownMenuItem>
-                    <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Edit product</DropdownMenuItem>
-                    {product.modelStatus === "available" ? (
-                      <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">View 3D model</DropdownMenuItem>
-                    ) : (
-                      <DropdownMenuItem className="text-gray-300 hover:bg-slate-800 hover:text-white">Create 3D model</DropdownMenuItem>
-                    )}
-                    <DropdownMenuSeparator className="bg-purple-500/20" />
-                    <DropdownMenuItem className="text-red-400 hover:bg-red-900/20 hover:text-red-300">
-                      Delete product
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="p-4 pt-0">
+              <Link href={`/products/${product.id}`} className="w-full">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full bg-purple-500/10 border-purple-500/30 text-purple-400 hover:bg-purple-500/20 hover:border-purple-500/50 transition-all duration-200 font-medium"
+                >
+                  View Product
+                </Button>
+              </Link>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

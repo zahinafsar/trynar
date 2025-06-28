@@ -13,6 +13,24 @@ export type TokenUpdate = {
   amount?: number;
 };
 
+export type ModelRow = {
+  id: number;
+  created_at: string;
+  user: string;
+  url: string;
+  category: string;
+};
+
+export type ModelInsert = {
+  url: string;
+  category: string;
+};
+
+export type ModelUpdate = {
+  url?: string;
+  category?: string;
+};
+
 export type Database = {
   public: {
     Tables: {
@@ -20,6 +38,11 @@ export type Database = {
         Row: TokenRow;
         Insert: TokenInsert;
         Update: TokenUpdate;
+      };
+      models: {
+        Row: ModelRow;
+        Insert: ModelInsert;
+        Update: ModelUpdate;
       };
     };
   };

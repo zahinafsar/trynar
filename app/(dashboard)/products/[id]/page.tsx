@@ -236,33 +236,6 @@ export default function ProductDetailPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Image Toggle */}
-          <div className="flex gap-3">
-            <Button
-              variant={activeImage === 'original' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setActiveImage('original')}
-              className={activeImage === 'original' 
-                ? "flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0" 
-                : "flex-1 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
-              }
-            >
-              Original Image
-            </Button>
-            <Button
-              variant={activeImage === 'generated' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setActiveImage('generated')}
-              className={activeImage === 'generated' 
-                ? "flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0" 
-                : "flex-1 border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
-              }
-            >
-              <Sparkles className="mr-2 h-4 w-4" />
-              AI Enhanced
-            </Button>
-          </div>
         </motion.div>
 
         {/* Product Info */}
@@ -271,48 +244,6 @@ export default function ProductDetailPage() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          {/* Description */}
-          <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
-            <CardHeader className="border-b border-purple-500/10">
-              <CardTitle className="text-xl font-semibold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Product Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <p className="text-gray-300 mb-6 leading-relaxed">
-                {product.description}
-              </p>
-
-              <div className="flex gap-3 mb-6">
-                <Button asChild className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0">
-                  <Link href={`/try-on/${product.id}`}>
-                    <Smartphone className="mr-2 h-4 w-4" />
-                    Try in AR
-                  </Link>
-                </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setShowEmbedCode(!showEmbedCode)}
-                  className="border-purple-500/30 text-gray-300 hover:bg-purple-900/20 hover:border-purple-500/50"
-                >
-                  <Code className="mr-2 h-4 w-4" />
-                  Embed
-                </Button>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="text-center p-3 rounded-lg bg-gradient-to-r from-blue-900/20 to-cyan-900/20 border border-blue-500/20">
-                  <div className="text-2xl font-bold text-blue-400">{product.stats.views}</div>
-                  <div className="text-xs text-gray-400">Views</div>
-                </div>
-                <div className="text-center p-3 rounded-lg bg-gradient-to-r from-green-900/20 to-emerald-900/20 border border-green-500/20">
-                  <div className="text-2xl font-bold text-green-400">{product.stats.tryOns}</div>
-                  <div className="text-xs text-gray-400">Try-ons</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Embed & Share Options */}
           <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">

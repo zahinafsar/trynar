@@ -8,7 +8,7 @@ import { Camera, Sparkles, Zap, ArrowRight, Star } from "lucide-react";
 import Image from "next/image";
 import { Canvas } from "@react-three/fiber";
 import { Environment, Float, PresentationControls } from "@react-three/drei";
-import { AnimatedBoxScene, GalaxyEffect } from "@/components/3d-effects";
+import { AnimatedBoxScene, GalaxyEffect } from "@/components/ui/3d-effects";
 
 const VirtualTryOn = dynamic(
   () => import("@/components/try-on").then((mod) => mod.VirtualTryOn),

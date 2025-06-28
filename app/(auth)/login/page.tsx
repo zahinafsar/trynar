@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { signIn } from "@/lib/auth";
-import { GalaxyEffect } from "@/components/3d-effects";
+import { GalaxyEffect } from "@/components/ui/3d-effects";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),

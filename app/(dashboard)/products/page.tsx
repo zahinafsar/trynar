@@ -2,7 +2,6 @@ import Link from "next/link";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductList } from "@/components/products/product-list";
-import { ProductSearch } from "@/components/products/product-search";
 
 export default function ProductsPage() {
   return (
@@ -28,7 +27,6 @@ export default function ProductsPage() {
         </Button>
       </div>
       
-      <ProductSearch />
       <ProductList />
     </div>
   );

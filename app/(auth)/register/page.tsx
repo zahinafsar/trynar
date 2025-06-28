@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { signUp } from "@/lib/auth";
-import { GalaxyEffect } from "@/components/3d-effects";
+import { GalaxyEffect } from "@/components/ui/3d-effects";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
