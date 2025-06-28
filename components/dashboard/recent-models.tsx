@@ -57,10 +57,10 @@ export function RecentModels() {
         {models.map((model) => (
           <div
             key={model.id}
-            className="flex items-center justify-between space-x-4 rounded-lg border p-3"
+            className="flex items-center justify-between space-x-4 rounded-xl border border-purple-500/20 p-4 bg-gradient-to-r from-slate-900/50 to-purple-900/20 hover:border-purple-500/40 transition-all duration-300"
           >
             <div className="flex items-center space-x-4">
-              <div className="relative h-16 w-16 overflow-hidden rounded-md">
+              <div className="relative h-16 w-16 overflow-hidden rounded-lg border border-purple-500/20">
                 <Image
                   src={model.thumbnail}
                   alt={model.name}
@@ -69,36 +69,45 @@ export function RecentModels() {
                 />
               </div>
               <div>
-                <div className="font-medium">{model.name}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="font-semibold text-white">{model.name}</div>
+                <div className="text-sm text-gray-300">
                   {model.productName}
                 </div>
-                <div className="flex items-center space-x-2 mt-1">
+                <div className="flex items-center space-x-2 mt-2">
                   <Badge
                     variant="outline"
                     className={cn(
-                      "text-xs",
-                      model.status === "complete" && "bg-green-500/10 text-green-500 hover:bg-green-500/10 hover:text-green-500",
-                      model.status === "processing" && "bg-blue-500/10 text-blue-500 hover:bg-blue-500/10 hover:text-blue-500",
-                      model.status === "failed" && "bg-red-500/10 text-red-500 hover:bg-red-500/10 hover:text-red-500"
+                      "text-xs border-0",
+                      model.status === "complete" && "bg-green-500/20 text-green-400 hover:bg-green-500/30",
+                      model.status === "processing" && "bg-blue-500/20 text-blue-400 hover:bg-blue-500/30",
+                      model.status === "failed" && "bg-red-500/20 text-red-400 hover:bg-red-500/30"
                     )}
                   >
                     {model.status}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">
+                  <span className="text-xs text-gray-400">
                     {formatDistanceToNow(model.createdAt, { addSuffix: true })}
                   </span>
                 </div>
               </div>
             </div>
-            <Button size="sm" asChild>
+            <Button 
+              size="sm" 
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white border-0"
+              asChild
+            >
               <Link href={`/models/${model.id}`}>View</Link>
             </Button>
           </div>
         ))}
       </div>
-      <div className="text-center">
-        <Button variant="outline" size="sm" asChild>
+      <div className="text-center pt-4">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="border-purple-500/20 text-gray-300 hover:border-purple-500/40 hover:bg-purple-900/20"
+          asChild
+        >
           <Link href="/models">View all models</Link>
         </Button>
       </div>
