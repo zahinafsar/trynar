@@ -11,12 +11,14 @@ interface VirtualMirrorProps {
   scale?: number;
   opacity?: number;
   generatedImageUrl?: string | null;
+  canvasStyle?: React.CSSProperties;
 }
 
 export const VirtualTryOn: React.FC<VirtualMirrorProps> = ({
   scale = 1,
   opacity = 0.9,
   generatedImageUrl,
+  canvasStyle,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const webcamRef = useRef<Webcam>(null);
@@ -146,6 +148,7 @@ export const VirtualTryOn: React.FC<VirtualMirrorProps> = ({
               width: "100%",
               height: "100%",
               pointerEvents: "none",
+              ...canvasStyle,
             }}
           />
         </div>

@@ -183,7 +183,9 @@ export default function Home() {
                 </div>
               </div>
               <div className="relative aspect-video">
-                <VirtualTryOn />
+                <VirtualTryOn
+                  canvasStyle={{ transform: "translateY(-20px)" }}
+                />
               </div>
             </div>
 
