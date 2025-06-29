@@ -70,6 +70,23 @@ const categories = [
   { value: "other", label: "Other", disabled: true },
 ];
 
+// Helper function to convert base64 to File
+const base64ToFile = (base64String: string, filename: string): File => {
+  // Remove data URL prefix if present
+  const base64Data = base64String.replace(/^data:image\/[a-z]+;base64,/, '');
+  
+  // Convert base64 to binary
+  const byteCharacters = atob(base64Data);
+  const byteNumbers = new Array(byteCharacters.length);
+  
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+  
+  const byteArray = new Uint8Array(byteNumbers);
+  return new File([byteArray], filename, { type: 'image/png' });
+};
+
 export default function CreateProductPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -142,9 +159,16 @@ export default function CreateProductPage() {
       const result = (await response.json()) as OpenAI.Images.ImagesResponse;
 
       if (result.data?.[0]?.b64_json) {
-        setGeneratedImageUrl(
-          `data:image/png;base64,${result.data[0].b64_json}`
-        );
+        // Check if it's a URL or base64 data
+        const imageData = result.data[0].b64_json;
+        if (imageData.startsWith('http')) {
+          // It's a URL, use it directly
+          setGeneratedImageUrl(imageData);
+        } else {
+          // It's base64 data, format it properly
+          setGeneratedImageUrl(`data:image/png;base64,${imageData}`);
+        }
+        
         setCurrentStep('details');
         toast({
           title: "Image generated successfully",
@@ -186,15 +210,42 @@ export default function CreateProductPage() {
         throw new Error("User not authenticated");
       }
 
+      let originalImageUrl = '';
+      let generatedImageStorageUrl = '';
+
       // Upload the original image to Supabase storage
-      const originalImagePath = StorageService.generateFilePath(
-        user.id,
-        selectedImage!.name
-      );
-      const originalImageUrl = await StorageService.uploadFile(
-        selectedImage!,
-        originalImagePath
-      );
+      if (selectedImage) {
+        const originalImagePath = StorageService.generateFilePath(
+          user.id,
+          selectedImage.name
+        );
+        originalImageUrl = await StorageService.uploadFile(
+          selectedImage,
+          originalImagePath
+        );
+      }
+
+      // Handle the generated image
+      if (generatedImageUrl.startsWith('http')) {
+        // If it's already a URL (from the dummy response), use it directly
+        generatedImageStorageUrl = generatedImageUrl;
+      } else {
+        // If it's base64 data, convert to file and upload
+        const generatedImageFile = base64ToFile(
+          generatedImageUrl,
+          `generated-${Date.now()}.png`
+        );
+        
+        const generatedImagePath = StorageService.generateFilePath(
+          user.id,
+          generatedImageFile.name
+        );
+        
+        generatedImageStorageUrl = await StorageService.uploadFile(
+          generatedImageFile,
+          generatedImagePath
+        );
+      }
 
       // Create model record in database
       const modelData = {
@@ -202,7 +253,7 @@ export default function CreateProductPage() {
         name: formValues.name,
         category: formValues.category,
         product_url: originalImageUrl,
-        image_url: generatedImageUrl,
+        image_url: generatedImageStorageUrl,
       };
 
       await ModelsService.createModel(modelData);
@@ -210,7 +261,7 @@ export default function CreateProductPage() {
       setCurrentStep('complete');
       toast({
         title: "Product saved successfully",
-        description: "Your product has been saved to the database.",
+        description: "Your AR product has been created and saved.",
       });
 
       // Redirect after a short delay

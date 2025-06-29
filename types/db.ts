@@ -56,6 +56,8 @@ export type Database = {
           image_url?: string;
           /** Name of the product model */
           name: string;
+          /** Original product image URL */
+          product_url?: string;
           /** User who created the model */
           user: string;
         };
@@ -70,6 +72,8 @@ export type Database = {
           image_url?: string;
           /** Name of the product model */
           name: string;
+          /** Original product image URL */
+          product_url?: string;
           /** User who created the model */
           user?: string;
         };
@@ -77,13 +81,15 @@ export type Database = {
           /** Category of the product */
           category?: string;
           /** When created */
-          createdAt?: string;
+          created_at?: string;
           /** Unique identifier for the model */
           id?: number;
           /** Generated image URL */
           image_url?: string;
           /** Name of the product model */
           name?: string;
+          /** Original product image URL */
+          product_url?: string;
           /** User who created the model */
           user?: string;
         };
@@ -201,3 +207,13 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never;
+
+// Convenience type aliases for the models table
+export type ModelRow = Tables<'models'>;
+export type ModelInsert = TablesInsert<'models'>;
+export type ModelUpdate = TablesUpdate<'models'>;
+
+// Convenience type aliases for the tokens table
+export type TokenRow = Tables<'tokens'>;
+export type TokenInsert = TablesInsert<'tokens'>;
+export type TokenUpdate = TablesUpdate<'tokens'>;
