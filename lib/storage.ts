@@ -65,7 +65,7 @@ export class StorageService {
    * @param path - The path where the file should be stored
    * @returns Promise with the public URL of the uploaded file
    */
-  static async uploadFile(file: File, path: string): Promise<string> {
+  static async uploadFile(file: File | Blob, path: string): Promise<string> {
     try {
       // Check if user is authenticated
       const {

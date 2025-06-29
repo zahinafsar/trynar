@@ -5,7 +5,7 @@ export const runDetector = async (
   canvas: HTMLCanvasElement, 
   onLoad?: () => void, 
   onFaceDetected?: (detected: boolean) => void, 
-  options?: { scale: number; opacity: number; }
+  options?: { scale: number; opacity: number; generatedImageUrl?: string | null; }
 ) => {
   try {
     // Dynamically import face detection libraries

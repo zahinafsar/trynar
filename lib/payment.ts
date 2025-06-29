@@ -1,4 +1,4 @@
-import { Package, Purchases } from "@revenuecat/purchases-js";
+import { Purchases } from "@revenuecat/purchases-js";
 
 class Payment {
     purchases: Purchases;

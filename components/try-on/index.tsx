@@ -10,11 +10,13 @@ interface VirtualMirrorProps {
   selectedModel?: string;
   scale?: number;
   opacity?: number;
+  generatedImageUrl?: string | null;
 }
 
 export const VirtualTryOn: React.FC<VirtualMirrorProps> = ({
   scale = 1,
   opacity = 0.9,
+  generatedImageUrl,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const webcamRef = useRef<Webcam>(null);
@@ -87,7 +89,7 @@ export const VirtualTryOn: React.FC<VirtualMirrorProps> = ({
           setIsDetectorLoaded(true);
         },
         () => {}, // Face detection callback - simplified
-        { scale, opacity }
+        { scale, opacity, generatedImageUrl }
       );
     }
   };

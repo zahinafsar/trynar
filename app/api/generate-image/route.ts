@@ -1,23 +1,38 @@
 import { createSupabaseServer } from "@/lib/supabase-server";
 import { type NextRequest, NextResponse } from "next/server"
-// import OpenAI from "openai"
+import OpenAI from "openai"
 
-// const openai = new OpenAI({
-//   apiKey: process.env.OPENAI_API_KEY,
-// });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 const prompt = {
-  sunglasses: "generate front side view of this sunglasses, remove arms, background and any other text or objects. We will use this image for Augmented Reality"
+  sunglasses: "Extract only the sunglasses from this image. Do not include glasses temples or arms. Remove person, face, hands, and any background. Keep the sunglasses centered, front-facing, with a transparent background to use in augmented reality"
 }
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createSupabaseServer()
 
+    // Check token balance
+    const { data: tokenData } = await supabase
+      .from('tokens')
+      .select('amount')
+
+    const total = tokenData?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
+
+    const currentBalance = total || 0;
+
+    if (currentBalance < 1500000) {
+      return NextResponse.json({
+        error: "Insufficient tokens. You need at least 1.5M tokens to generate an image."
+      }, { status: 402 });
+    }
+
     // Check if OpenAI API key is configured
-    // if (!process.env.OPENAI_API_KEY) {
-    //   return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
-    // }
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
+    }
 
     const formData = await request.formData()
     const image = formData.get("image") as File
@@ -32,39 +47,34 @@ export async function POST(request: NextRequest) {
     }
 
     // Call OpenAI's image edit API
-    // const response = await openai.images.edit({
-    //   image: image,
-    //   prompt: prompt.sunglasses,
-    //   n: 1,
-    //   size: "1024x1024",
-    //   background: 'transparent',
-    //   quality: 'medium',
-    //   model: 'gpt-image-1'
-    // });
+    const response = await openai.images.edit({
+      image: image,
+      prompt: prompt.sunglasses,
+      n: 1,
+      size: "1024x1024",
+      background: 'transparent',
+      quality: 'low',
+      model: 'gpt-image-1'
+    });
 
-    // if (response.usage?.input_tokens && response.usage?.output_tokens) {
-    //   await supabase.from('tokens').insert({
-    //     amount: (response.usage?.input_tokens + response.usage?.output_tokens) * -1,
-    //   })
-    // }
+    if (response.usage?.input_tokens && response.usage?.output_tokens) {
+      await supabase.from('tokens').insert({
+        amount: (response.usage?.input_tokens + response.usage?.output_tokens) * -1000,
+      })
+    }
 
-    // dummy token consumption for demo
-    await supabase.from('tokens').insert({
-      amount: -15000,
-    })
-
-    return NextResponse.json(dummyResponse)
+    return NextResponse.json(response)
   } catch (error: any) {
     console.error("Error editing image:", error)
 
     // Handle specific OpenAI API errors
-    // if (error?.status === 401) {
-    //   return NextResponse.json({ error: "Invalid OpenAI API key" }, { status: 401 })
-    // }
+    if (error?.status === 401) {
+      return NextResponse.json({ error: "Invalid OpenAI API key" }, { status: 401 })
+    }
 
-    // if (error?.status === 429) {
-    //   return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 })
-    // }
+    if (error?.status === 429) {
+      return NextResponse.json({ error: "Rate limit exceeded. Please try again later." }, { status: 429 })
+    }
 
     return NextResponse.json(
       {
@@ -72,28 +82,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 },
     )
-  }
-}
-
-
-const dummyResponse = {
-  "created": 1751135530,
-  "background": "transparent",
-  "data": [
-    {
-      "b64_json": "https://sdyjesjzzgafsdkpxeuz.supabase.co/storage/v1/object/public/models/ceed643f-3465-4a73-bc43-a23bf741ed0c/1751091989774-wxxdzlrl4zj.png"
-    }
-  ],
-  "output_format": "png",
-  "quality": "medium",
-  "size": "1024x1024",
-  "usage": {
-    "input_tokens": 244,
-    "input_tokens_details": {
-      "image_tokens": 194,
-      "text_tokens": 50
-    },
-    "output_tokens": 1056,
-    "total_tokens": 1300
   }
 }

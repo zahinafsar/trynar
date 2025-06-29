@@ -2,18 +2,21 @@
 const LEFT_EYE_INDEX = 159;  // Center of left eye (more accurate)
 const RIGHT_EYE_INDEX = 386; // Center of right eye (more accurate)
 
-// Load sunglasses image
-const sunglasses = new Image();
-sunglasses.src = '/sunglass.png';
-sunglasses.width = 800/3;  // Configure base width for scaling
-sunglasses.height = 300/3; // Configure base height for scaling
+const imageWidth = 250;
+const imageHeight = 250;
 
-export const Object3D = (prediction: any, ctx: any, options?: { scale: number; opacity: number; }) => {
+// Load default sunglasses image
+const defaultSunglasses = new Image();
+defaultSunglasses.src = '/sunglass.png';
+defaultSunglasses.width = imageWidth;  // Configure base width for scaling
+defaultSunglasses.height = imageHeight; // Configure base height for scaling
+
+export const Object3D = (prediction: any, ctx: any, options?: { scale: number; opacity: number; generatedImageUrl?: string | null; }) => {
   if (!prediction) return;
   const keyPoints = prediction.keypoints;
   if (!keyPoints) return;
   
-  const { scale = 1, opacity = 0.9 } = options || {};
+  const { scale = 1, opacity = 0.9, generatedImageUrl } = options || {};
   
   ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
   
@@ -27,20 +30,54 @@ export const Object3D = (prediction: any, ctx: any, options?: { scale: number; o
     Math.pow(rightEye.y - leftEye.y, 2)
   );
   
-  // Draw sunglasses
-  if (sunglasses.complete) {
+  // Use generated image if provided, otherwise use default sunglasses
+  const imageToUse = generatedImageUrl ? new Image() : defaultSunglasses;
+  
+  if (generatedImageUrl) {
+    console.log('Using generated image:', generatedImageUrl.substring(0, 50) + '...');
+    
+    // Handle both URL and base64 formats
+    if (generatedImageUrl.startsWith('data:image/') || generatedImageUrl.startsWith('http')) {
+      imageToUse.src = generatedImageUrl;
+    } else {
+      // Assume it's a base64 string without data URL prefix
+      imageToUse.src = `data:image/png;base64,${generatedImageUrl}`;
+    }
+    imageToUse.width = imageWidth;  // Configure base width for scaling
+    imageToUse.height = imageHeight; // Configure base height for scaling
+    
+    // Add error handling for generated image
+    imageToUse.onerror = () => {
+      console.warn('Failed to load generated image, falling back to default sunglasses');
+      imageToUse.src = defaultSunglasses.src;
+    };
+    
+    // Add success handler for generated image
+    imageToUse.onload = () => {
+      console.log('Generated image loaded successfully');
+    };
+  } else {
+    console.log('Using default sunglasses image');
+  }
+  
+  // Draw sunglasses - only draw if image is loaded or if it's the default image
+  const isImageReady = imageToUse.complete || 
+    (generatedImageUrl && imageToUse.src && imageToUse.naturalWidth > 0) ||
+    (!generatedImageUrl && defaultSunglasses.complete);
+    
+  if (isImageReady) {
     // Calculate the angle between eyes for rotation
     const angle = Math.atan2(rightEye.y - leftEye.y, rightEye.x - leftEye.x);
     
     // Scale based on eye distance and user preference
     const baseScale = eyeDistance / 120;
     const finalScale = baseScale * scale;
-    const width = sunglasses.width * finalScale;
-    const height = sunglasses.height * finalScale;
-    
+    const width = imageToUse.width * finalScale;
+    const height = imageToUse.height * finalScale;
+
     // Center position between eyes, with vertical offset
     const centerX = (leftEye.x + rightEye.x) / 2;
-    const centerY = (leftEye.y + rightEye.y) / 2 + (height * 0.15);
+    const centerY = (leftEye.y + rightEye.y) / 2 + 40;
     
     // Save the current canvas state
     ctx.save();
@@ -54,9 +91,9 @@ export const Object3D = (prediction: any, ctx: any, options?: { scale: number; o
     // Rotate the canvas
     ctx.rotate(angle);
     
-    // Draw the sunglasses centered
+    // Draw the image centered
     ctx.drawImage(
-      sunglasses,
+      imageToUse,
       -width / 2,  // Center horizontally
       -height / 2, // Center vertically
       width,

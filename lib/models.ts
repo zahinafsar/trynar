@@ -34,7 +34,7 @@ export class ModelsService {
    * @returns Promise with the updated model
    */
   static async updateModel(
-    id: number,
+    id: string,
     updates: ModelUpdate
   ): Promise<ModelRow> {
     try {
@@ -87,7 +87,7 @@ export class ModelsService {
    * @param id - The model ID
    * @returns Promise with the model
    */
-  static async getModel(id: number): Promise<ModelRow | null> {
+  static async getModel(id: string): Promise<ModelRow | null> {
     try {
       const { data, error } = await supabase
         .from("models")
@@ -114,7 +114,7 @@ export class ModelsService {
    * Delete a model
    * @param id - The model ID
    */
-  static async deleteModel(id: number): Promise<void> {
+  static async deleteModel(id: string): Promise<void> {
     try {
       const { error } = await supabase.from("models").delete().eq("id", id);
 

@@ -17,7 +17,7 @@ export type Database = {
           /** When created */
           created_at: string;
           /** Unique identifier for the token record */
-          id: number;
+          id: string;
           /** User who used the tokens */
           user: string;
         };
@@ -27,7 +27,7 @@ export type Database = {
           /** When created */
           created_at?: string;
           /** Unique identifier for the token record */
-          id?: number;
+          id?: string;
           /** User who used the tokens */
           user?: string;
         };
@@ -37,7 +37,7 @@ export type Database = {
           /** When created */
           created_at?: string;
           /** Unique identifier for the token record */
-          id?: number;
+          id?: string;
           /** User who used the tokens */
           user?: string;
         };
@@ -51,13 +51,11 @@ export type Database = {
           /** When created */
           created_at: string;
           /** Unique identifier for the model */
-          id: number;
+          id: string;
           /** Generated image URL */
           image_url?: string;
           /** Name of the product model */
           name: string;
-          /** Original product image URL */
-          product_url?: string;
           /** User who created the model */
           user: string;
         };
@@ -67,13 +65,11 @@ export type Database = {
           /** When created */
           created_at?: string;
           /** Unique identifier for the model */
-          id?: number;
+          id?: string;
           /** Generated image URL */
           image_url?: string;
           /** Name of the product model */
           name: string;
-          /** Original product image URL */
-          product_url?: string;
           /** User who created the model */
           user?: string;
         };
@@ -83,13 +79,11 @@ export type Database = {
           /** When created */
           created_at?: string;
           /** Unique identifier for the model */
-          id?: number;
+          id?: string;
           /** Generated image URL */
           image_url?: string;
           /** Name of the product model */
           name?: string;
-          /** Original product image URL */
-          product_url?: string;
           /** User who created the model */
           user?: string;
         };

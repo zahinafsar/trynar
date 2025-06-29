@@ -46,7 +46,7 @@ export function useModels() {
     }
   };
 
-  const updateModel = async (id: number, updates: Partial<ModelRow>) => {
+  const updateModel = async (id: string, updates: Partial<ModelRow>) => {
     try {
       const updatedModel = await ModelsService.updateModel(id, updates);
       setModels((prev) =>
@@ -58,7 +58,7 @@ export function useModels() {
     }
   };
 
-  const deleteModel = async (id: number) => {
+  const deleteModel = async (id: string) => {
     try {
       await ModelsService.deleteModel(id);
       setModels((prev) => prev.filter((model) => model.id !== id));

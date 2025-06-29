@@ -28,21 +28,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { ModelsService } from "@/lib/models";
+import { ModelRow } from "@/types/db";
 
-interface ProductData {
-  id: string;
-  name: string;
-  description: string;
-  category: string;
-  originalImage: string;
-  generatedImage: string;
-  arModelUrl: string;
-  features: string[];
-  stats: {
-    views: number;
-    tryOns: number;
-    rating: number;
-  };
+interface ProductData extends ModelRow {
+  // Only extend with fields that actually exist in the database
+  // No additional fields needed since ModelRow already has all available fields
 }
 
 export default function ProductDetailPage() {
@@ -55,37 +46,42 @@ export default function ProductDetailPage() {
   const [showEmbedCode, setShowEmbedCode] = useState(false);
 
   useEffect(() => {
-    // Simulate loading product data
     const loadProduct = async () => {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setProduct({
-        id: params.id as string,
-        name: "Premium Blue Sunglasses",
-        description: "High-quality sunglasses with UV protection and polarized lenses. Perfect for outdoor activities and everyday wear. Features a durable frame and comfortable fit.",
-        category: "Sunglasses",
-        originalImage: "https://images.pexels.com/photos/701877/pexels-photo-701877.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-        generatedImage: "https://images.pexels.com/photos/1674666/pexels-photo-1674666.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1",
-        arModelUrl: "/models/sunglasses-ar.glb",
-        features: [
-          "UV400 Protection",
-          "Polarized Lenses",
-          "Lightweight Frame",
-          "Anti-Scratch Coating",
-          "Adjustable Nose Pads"
-        ],
-        stats: {
-          views: 1247,
-          tryOns: 89,
-          rating: 4.8
+      try {
+        setIsLoading(true);
+        
+        // Get the model ID from URL params (it's a UUID string, not a number)
+        const modelId = params.id as string;
+        console.log("Attempting to load model with ID:", modelId);
+        
+        if (!modelId) {
+          throw new Error("Invalid model ID");
         }
-      });
-      
-      setIsLoading(false);
+
+        // Fetch the model from Supabase
+        const model = await ModelsService.getModel(modelId);
+        console.log("Fetched model:", model);
+        
+        if (!model) {
+          throw new Error(`Model with ID ${modelId} not found in database`);
+        }
+
+        // Use the model data directly - no transformation needed
+        setProduct(model);
+      } catch (error) {
+        console.error("Error loading product:", error);
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to load product",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
     };
     
     loadProduct();
-  }, [params.id]);
+  }, [params.id, toast]);
 
   const getEmbedCode = () => {
     const baseUrl = window.location.origin;
@@ -182,12 +178,8 @@ export default function ProductDetailPage() {
             </h1>
             <div className="flex items-center gap-3 mt-2">
               <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30">
-                {product.category}
+                {product.category || 'Product'}
               </Badge>
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span className="text-sm font-medium text-gray-300">{product.stats.rating}</span>
-              </div>
             </div>
           </div>
         </div>
@@ -218,24 +210,26 @@ export default function ProductDetailPage() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-          <Card className="overflow-hidden bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
-            <CardContent className="p-0">
-              <div className="relative aspect-square">
-                <Image
-                  src={activeImage === 'original' ? product.originalImage : product.generatedImage}
-                  alt={product.name}
-                  className="object-cover transition-all duration-500"
-                  fill
-                />
-                <div className="absolute top-4 left-4">
-                  <Badge className="bg-slate-900/80 backdrop-blur-sm border border-purple-500/30 text-purple-300">
-                    {activeImage === 'original' ? 'Original' : 'AI Enhanced'}
-                    {activeImage === 'generated' && <Sparkles className="ml-1 h-3 w-3" />}
-                  </Badge>
+          {product.image_url && (
+            <Card className="overflow-hidden bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
+              <CardContent className="p-0">
+                <div className="relative aspect-square">
+                  <Image
+                    src={product.image_url}
+                    alt={product.name}
+                    className="object-cover transition-all duration-500"
+                    fill
+                  />
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-slate-900/80 backdrop-blur-sm border border-purple-500/30 text-purple-300">
+                      AI Enhanced
+                      <Sparkles className="ml-1 h-3 w-3" />
+                    </Badge>
+                  </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </motion.div>
 
         {/* Product Info */}
@@ -244,7 +238,6 @@ export default function ProductDetailPage() {
           animate={{ opacity: 1, x: 0 }}
           className="space-y-6"
         >
-
           {/* Embed & Share Options */}
           <Card className="bg-slate-900/50 backdrop-blur-xl border border-purple-500/20 shadow-xl shadow-black/10">
             <CardHeader className="border-b border-purple-500/10">
