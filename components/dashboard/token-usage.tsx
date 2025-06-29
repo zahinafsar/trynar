@@ -53,7 +53,7 @@ export function TokenUsage() {
         // Fetch token usage data
         const { data: tokenData, error } = await supabase
           .from("tokens")
-          .select("amount, created_at")
+          .select("*")
           .eq("user", user.id)
           .gte("created_at", startDate.toISOString())
           .order("created_at", { ascending: true });
