@@ -50,6 +50,7 @@ import { useToast } from "@/hooks/use-toast";
 import { StorageService } from "@/lib/storage";
 import { ModelsService } from "@/lib/models";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/auth";
 import type OpenAI from "openai";
 
 const formSchema = z.object({
@@ -207,6 +208,7 @@ export default function CreateProductPage() {
   >("upload");
   const router = useRouter();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -250,11 +252,21 @@ export default function CreateProductPage() {
       return;
     }
 
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "Please log in to generate images.",
+      });
+      return;
+    }
+
     setIsGenerating(true);
 
     try {
       const formData = new FormData();
       formData.append("image", selectedImage);
+      formData.append("userId", user.id); // Pass userId from frontend
 
       const response = await fetch("/api/generate-image", {
         method: "POST",
@@ -321,17 +333,18 @@ export default function CreateProductPage() {
       return;
     }
 
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Authentication required",
+        description: "Please log in to save products.",
+      });
+      return;
+    }
+
     setIsSaving(true);
 
     try {
-      // Get current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        throw new Error("User not authenticated");
-      }
-
       let generatedImageStorageUrl = "";
       if (generatedImageUrl.startsWith('data:')) {
         // It's a data URL (base64), convert to blob

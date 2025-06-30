@@ -13,21 +13,28 @@ const prompt = {
 export async function POST(request: NextRequest) {
   try {
     const supabase = await createSupabaseServer()
-
-    // Get the current authenticated user
+    const formData = await request.formData()
+    
+    // Get userId from form data (passed from frontend)
+    const userIdFromForm = formData.get("userId") as string;
+    
+    // Get the current authenticated user as fallback
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
+    // Use userId from form data if available, otherwise use authenticated user
+    const userId = userIdFromForm || user?.id;
+    
+    if (authError || !userId) {
       return NextResponse.json({
         error: "Authentication required. Please log in to generate images."
       }, { status: 401 });
     }
 
-    // Check token balance for the current user only
+    // Check token balance for the specified user
     const { data: tokenData, error: tokenError } = await supabase
       .from('tokens')
       .select('amount')
-      .eq('user', user.id); // Filter by current user ID
+      .eq('user', userId); // Use the determined userId
 
     if (tokenError) {
       console.error("Error fetching user tokens:", tokenError);
@@ -36,7 +43,7 @@ export async function POST(request: NextRequest) {
       }, { status: 500 });
     }
 
-    // Calculate total balance for the current user
+    // Calculate total balance for the user
     const currentBalance = tokenData?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
 
     // Check if user has sufficient tokens (1.5M tokens required)
@@ -52,7 +59,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "OpenAI API key not configured" }, { status: 500 })
     }
 
-    const formData = await request.formData()
     const image = formData.get("image") as File
 
     if (!image) {
@@ -75,7 +81,7 @@ export async function POST(request: NextRequest) {
       model: 'gpt-image-1'
     });
 
-    // Deduct tokens from the current user's account
+    // Deduct tokens from the user's account
     if (response.usage?.input_tokens && response.usage?.output_tokens) {
       const tokensUsed = (response.usage.input_tokens + response.usage.output_tokens) * 1000;
       
@@ -83,7 +89,7 @@ export async function POST(request: NextRequest) {
         .from('tokens')
         .insert({
           amount: -tokensUsed, // Negative amount to represent usage
-          user: user.id // Associate with current user
+          user: userId // Use the determined userId
         });
 
       if (deductError) {
@@ -98,7 +104,7 @@ export async function POST(request: NextRequest) {
         .from('tokens')
         .insert({
           amount: -estimatedTokens,
-          user: user.id
+          user: userId
         });
 
       if (deductError) {
