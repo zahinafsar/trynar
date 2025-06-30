@@ -14,17 +14,13 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createSupabaseServer()
     const formData = await request.formData()
-    
+
     // Get userId from form data (passed from frontend)
     const userIdFromForm = formData.get("userId") as string;
-    
-    // Get the current authenticated user as fallback
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    // Use userId from form data if available, otherwise use authenticated user
-    const userId = userIdFromForm || user?.id;
-    
-    if (authError || !userId) {
+
+    const userId = userIdFromForm
+
+    if (!userId) {
       return NextResponse.json({
         error: "Authentication required. Please log in to generate images."
       }, { status: 401 });
@@ -84,7 +80,7 @@ export async function POST(request: NextRequest) {
     // Deduct tokens from the user's account
     if (response.usage?.input_tokens && response.usage?.output_tokens) {
       const tokensUsed = (response.usage.input_tokens + response.usage.output_tokens) * 1000;
-      
+
       const { error: deductError } = await supabase
         .from('tokens')
         .insert({
@@ -99,7 +95,7 @@ export async function POST(request: NextRequest) {
     } else {
       // If no usage data, deduct the estimated amount
       const estimatedTokens = requiredTokens;
-      
+
       const { error: deductError } = await supabase
         .from('tokens')
         .insert({
