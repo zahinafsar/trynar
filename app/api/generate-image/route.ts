@@ -14,18 +14,36 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createSupabaseServer()
 
-    // Check token balance
-    const { data: tokenData } = await supabase
+    // Get the current authenticated user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json({
+        error: "Authentication required. Please log in to generate images."
+      }, { status: 401 });
+    }
+
+    // Check token balance for the current user only
+    const { data: tokenData, error: tokenError } = await supabase
       .from('tokens')
       .select('amount')
+      .eq('user', user.id); // Filter by current user ID
 
-    const total = tokenData?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
-
-    const currentBalance = total || 0;
-
-    if (currentBalance < 1500000) {
+    if (tokenError) {
+      console.error("Error fetching user tokens:", tokenError);
       return NextResponse.json({
-        error: "Insufficient tokens. You need at least 1.5M tokens to generate an image."
+        error: "Failed to check token balance. Please try again."
+      }, { status: 500 });
+    }
+
+    // Calculate total balance for the current user
+    const currentBalance = tokenData?.reduce((acc, curr) => acc + curr.amount, 0) || 0;
+
+    // Check if user has sufficient tokens (1.5M tokens required)
+    const requiredTokens = 1500000;
+    if (currentBalance < requiredTokens) {
+      return NextResponse.json({
+        error: `Insufficient tokens. You need at least ${(requiredTokens / 1000000).toFixed(1)}M tokens to generate an image. Current balance: ${(currentBalance / 1000000).toFixed(1)}M tokens.`
       }, { status: 402 });
     }
 
@@ -57,10 +75,35 @@ export async function POST(request: NextRequest) {
       model: 'gpt-image-1'
     });
 
+    // Deduct tokens from the current user's account
     if (response.usage?.input_tokens && response.usage?.output_tokens) {
-      await supabase.from('tokens').insert({
-        amount: (response.usage?.input_tokens + response.usage?.output_tokens) * -1000,
-      })
+      const tokensUsed = (response.usage.input_tokens + response.usage.output_tokens) * 1000;
+      
+      const { error: deductError } = await supabase
+        .from('tokens')
+        .insert({
+          amount: -tokensUsed, // Negative amount to represent usage
+          user: user.id // Associate with current user
+        });
+
+      if (deductError) {
+        console.error("Error deducting tokens:", deductError);
+        // Don't fail the request if token deduction fails, but log it
+      }
+    } else {
+      // If no usage data, deduct the estimated amount
+      const estimatedTokens = requiredTokens;
+      
+      const { error: deductError } = await supabase
+        .from('tokens')
+        .insert({
+          amount: -estimatedTokens,
+          user: user.id
+        });
+
+      if (deductError) {
+        console.error("Error deducting estimated tokens:", deductError);
+      }
     }
 
     return NextResponse.json(response)
